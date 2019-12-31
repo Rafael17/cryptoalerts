@@ -4,13 +4,24 @@
   "description": "Use bitmex API and Telegram to alert when price targets and indicators are triggered",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "bitmex-realtime-api": "^0.4.3",
     "dotenv": "^8.2.0",
-    "telegraf": "^3.34.1"
+    "telegraf": "^3.34.1",
+    "body-parser": "^1.18.3",
+    "connect-mongo": "^2.0.1",
+    "cookie-parser": "^1.4.3",
+    "emailjs": "^2.2.0",
+    "express": "^4.16.4",
+    "express-session": "^1.15.6",
+    "moment": "^2.22.2",
+    "mongodb": "^3.1.10",
+    "pug": "^2.0.3",
+    "stylus": "^0.54.5"
   }
 }

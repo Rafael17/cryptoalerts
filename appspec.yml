@@ -1,0 +1,18 @@
+version: 0.0
+os: linux
+files:
+  - source: .
+    destination: /usr/share/nginx/html/
+hooks:
+  ApplicationStop:
+    - location: scripts/stop-server.sh
+      timeout: 180
+      runas: root
+  AfterInstall:
+    - location: scripts/install-dependencies.sh
+      timeout: 180
+      runas: root
+  ApplicationStart:
+    - location: scripts/start-server.sh
+      timeout: 180
+      runas: root

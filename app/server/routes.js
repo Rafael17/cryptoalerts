@@ -2,6 +2,7 @@
 var CT = require('./modules/country-list');
 var AM = require('./modules/account-manager');
 var EM = require('./modules/email-dispatcher');
+var TP = require('./modules/trading-pair-list');
 
 module.exports = function(app) {
 
@@ -19,7 +20,7 @@ module.exports = function(app) {
 				if (o){
 					AM.autoLogin(o.user, o.pass, function(o){
 						req.session.user = o;
-						res.redirect('/home');
+						res.redirect('/price-alerts');
 					});
 				}	else{
 					res.render('login', { title: 'Hello - Please Login To Your Account' });
@@ -50,6 +51,23 @@ module.exports = function(app) {
 		res.clearCookie('login');
 		req.session.destroy(function(e){ res.status(200).send('ok'); });
 	})
+
+/*
+	price alerts
+
+*/
+
+	app.get('/price-alerts', function(req, res) {
+		if (req.session.user == null){
+			res.redirect('/');
+		}	else{
+			res.render('price-alerts', {
+				title : 'Price Alerts',
+				pairs : TP,
+				udata : req.session.user
+			});
+		}
+	});
 	
 /*
 	control panel

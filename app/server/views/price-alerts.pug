@@ -1,0 +1,44 @@
+
+extends layout
+	
+block content
+	nav.navbar.navbar-expand.navbar-light.bg-light
+		.nav-item
+			.navbar-brand Price Alerts
+		.navbar-nav.ml-auto
+			.nav-item
+				button.btn.navbar-btn.btn-outline-dark#btn-logout Sign Out
+
+	input(type='hidden', value= udata._id)#udataId
+
+	.center-vertical
+		form.card.card-body.bg-light(method='post')#price-alerts-form
+			h2
+			h6#sub Create a new price alert.
+			hr
+			.form-group.row.margin-zero
+				label.col-sm-3.col-form-label.col-form-label-sm Location
+				.col-sm-9
+					select.custom-select#pair-list(name='pair')
+						each item in pairs
+							option(selected=item.name == udata.country)= item.name
+
+			.form-group.row
+				label.col-sm-3.col-form-label.col-form-label-sm Price Alert
+				.col-sm-9
+					input.form-control#price-tf(type='text', name='price', value='')
+			hr
+			.form-buttons
+				button(type='button')#price-alerts-form-btn1.btn.btn-outline-dark
+				button(type='submit')#price-alerts-form-btn2.btn.btn-primary
+
+	// display form errors in a custom modal window //
+
+	include modals/form-errors
+
+
+
+block scripts
+	script(src='/js/views/home.js')
+	script(src='/js/controllers/homeController.js')
+	script(src='/js/form-validators/accountValidator.js')

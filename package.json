@@ -11,17 +11,18 @@
   "license": "ISC",
   "dependencies": {
     "bitmex-realtime-api": "^0.4.3",
-    "dotenv": "^8.2.0",
-    "telegraf": "^3.34.1",
     "body-parser": "^1.18.3",
     "connect-mongo": "^2.0.1",
     "cookie-parser": "^1.4.3",
+    "dotenv": "^8.2.0",
     "emailjs": "^2.2.0",
     "express": "^4.16.4",
     "express-session": "^1.15.6",
     "moment": "^2.22.2",
     "mongodb": "^3.1.10",
+    "pubsub-js": "^1.8.0",
     "pug": "^2.0.3",
-    "stylus": "^0.54.5"
+    "stylus": "^0.54.5",
+    "telegraf": "^3.34.1"
   }
 }

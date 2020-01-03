@@ -23,6 +23,7 @@ var session = require('express-session');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var MongoStore = require('connect-mongo')(session);
+var mongoUtil = require('./app/server/modules/database');
 
 var app = express();
 
@@ -58,7 +59,11 @@ app.use(session({
 	})
 );
 
-require('./app/server/routes')(app);
+mongoUtil.connect( ( err, client ) => {
+  if (err) console.log(err);
+  require('./app/server/routes')(app);
+  require('./pollPrice');
+} );
 
 http.createServer(app).listen(app.get('port'), function(){
 	console.log('Express server listening on port ' + app.get('port'));

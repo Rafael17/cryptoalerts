@@ -11,13 +11,29 @@ block content
 
 	input(type='hidden', value= udata._id)#udataId
 
+	div.container(style='margin:20px auto')
+		table.table.table-bordered.table-striped
+			thead.thead-dark
+				tr
+					th(style='width:50px;text-align:center') #
+					th(style='width:220px') Trading Pair
+					th(style='width:220px') Price
+					th(style='width:220px') Cross Type
+			tbody
+			- for (var i = 0; i < alerts.length; i++)
+				tr
+					td(style='text-align:center')= i+1
+					td= alerts[i].pair
+					td= alerts[i].price
+					td= alerts[i].cross
+
 	.center-vertical
 		form.card.card-body.bg-light(method='post')#price-alerts-form
 			h2
 			h6#sub Create a new price alert.
 			hr
 			.form-group.row.margin-zero
-				label.col-sm-3.col-form-label.col-form-label-sm Location
+				label.col-sm-3.col-form-label.col-form-label-sm Trading Pair
 				.col-sm-9
 					select.custom-select#pair-list(name='pair')
 						each item in pairs
@@ -27,10 +43,16 @@ block content
 				label.col-sm-3.col-form-label.col-form-label-sm Price Alert
 				.col-sm-9
 					input.form-control#price-tf(type='text', name='price', value='')
+
+			.form-group.row.margin-zero
+				label.col-sm-3.col-form-label.col-form-label-sm Cross Type
+				.col-sm-9
+					select.custom-select#cross-list(name='cross')
+						option Cross Up
+						option Cross Down
 			hr
 			.form-buttons
-				button(type='button')#price-alerts-form-btn1.btn.btn-outline-dark
-				button(type='submit')#price-alerts-form-btn2.btn.btn-primary
+				button(type='submit')#price-alerts-form-btn2.btn.btn-primary Submit
 
 	// display form errors in a custom modal window //
 

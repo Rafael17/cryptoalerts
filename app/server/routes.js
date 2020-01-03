@@ -1,8 +1,9 @@
 
 var CT = require('./modules/country-list');
-var AM = require('./modules/account-manager');
+var AcccountManager = require('./modules/account-manager');
 var EM = require('./modules/email-dispatcher');
 var TP = require('./modules/trading-pair-list');
+var AlertManager = require('./modules/alert-manager');
 
 module.exports = function(app) {
 
@@ -16,9 +17,9 @@ module.exports = function(app) {
 			res.render('login', { title: 'Hello - Please Login To Your Account' });
 		}	else{
 	// attempt automatic login //
-			AM.validateLoginKey(req.cookies.login, req.ip, function(e, o){
+			AcccountManager.validateLoginKey(req.cookies.login, req.ip, function(e, o){
 				if (o){
-					AM.autoLogin(o.user, o.pass, function(o){
+					AcccountManager.autoLogin(o.user, o.pass, function(o){
 						req.session.user = o;
 						res.redirect('/price-alerts');
 					});
@@ -30,7 +31,7 @@ module.exports = function(app) {
 	});
 	
 	app.post('/', function(req, res){
-		AM.manualLogin(req.body['user'], req.body['pass'], function(e, o){
+		AcccountManager.manualLogin(req.body['user'], req.body['pass'], function(e, o){
 			if (!o){
 				res.status(400).send(e);
 			}	else{
@@ -38,7 +39,7 @@ module.exports = function(app) {
 				if (req.body['remember-me'] == 'false'){
 					res.status(200).send(o);
 				}	else{
-					AM.generateLoginKey(o.user, req.ip, function(key){
+					AcccountManager.generateLoginKey(o.user, req.ip, function(key){
 						res.cookie('login', key, { maxAge: 900000 });
 						res.status(200).send(o);
 					});
@@ -57,14 +58,37 @@ module.exports = function(app) {
 
 */
 
-	app.get('/price-alerts', function(req, res) {
+	app.post('/price-alerts', function(req, res) {
 		if (req.session.user == null){
 			res.redirect('/');
 		}	else{
-			res.render('price-alerts', {
-				title : 'Price Alerts',
-				pairs : TP,
-				udata : req.session.user
+			AlertManager.addPriceAlert({
+				userId	: req.session.user._id,
+				price	: req.body['price'],
+				pair	: req.body['pair'],
+				cross	: req.body['cross']
+			}, (e, o) => {
+				if (e){
+					res.status(400).send('error-adding-price-alert');
+				}	else{
+					res.redirect('/price-alerts');
+				}
+			});
+		}
+	});
+
+	app.get('/price-alerts', function(req, res) {
+
+		if (req.session.user == null){
+			res.redirect('/');
+		}	else{
+			AlertManager.getPriceAlerts(req.session.user._id, (e, alerts) => {
+				res.render('price-alerts', {
+					title : 'Price Alerts',
+					pairs : TP,
+					udata : req.session.user,
+					alerts: alerts
+				});
 			});
 		}
 	});
@@ -89,7 +113,7 @@ module.exports = function(app) {
 		if (req.session.user == null){
 			res.redirect('/');
 		}	else{
-			AM.updateAccount({
+			AcccountManager.updateAccount({
 				id		: req.session.user._id,
 				name	: req.body['name'],
 				email	: req.body['email'],
@@ -115,7 +139,7 @@ module.exports = function(app) {
 	});
 	
 	app.post('/signup', function(req, res){
-		AM.addNewAccount({
+		AcccountManager.addNewAccount({
 			name 	: req.body['name'],
 			email 	: req.body['email'],
 			user 	: req.body['user'],
@@ -136,7 +160,7 @@ module.exports = function(app) {
 
 	app.post('/lost-password', function(req, res){
 		let email = req.body['email'];
-		AM.generatePasswordKey(email, req.ip, function(e, account){
+		AcccountManager.generatePasswordKey(email, req.ip, function(e, account){
 			if (e){
 				res.status(400).send(e);
 			}	else{
@@ -154,7 +178,7 @@ module.exports = function(app) {
 	});
 
 	app.get('/reset-password', function(req, res) {
-		AM.validatePasswordKey(req.query['key'], req.ip, function(e, o){
+		AcccountManager.validatePasswordKey(req.query['key'], req.ip, function(e, o){
 			if (e || o == null){
 				res.redirect('/');
 			} else{
@@ -169,7 +193,7 @@ module.exports = function(app) {
 		let passKey = req.session.passKey;
 	// destory the session immediately after retrieving the stored passkey //
 		req.session.destroy();
-		AM.updatePassword(passKey, newPass, function(e, o){
+		AcccountManager.updatePassword(passKey, newPass, function(e, o){
 			if (o){
 				res.status(200).send('ok');
 			}	else{
@@ -183,13 +207,13 @@ module.exports = function(app) {
 */
 	
 	app.get('/print', function(req, res) {
-		AM.getAllRecords( function(e, accounts){
+		AcccountManager.getAllRecords( function(e, accounts){
 			res.render('print', { title : 'Account List', accts : accounts });
 		})
 	});
 	
 	app.post('/delete', function(req, res){
-		AM.deleteAccount(req.session.user._id, function(e, obj){
+		AcccountManager.deleteAccount(req.session.user._id, function(e, obj){
 			if (!e){
 				res.clearCookie('login');
 				req.session.destroy(function(e){ res.status(200).send('ok'); });
@@ -200,7 +224,7 @@ module.exports = function(app) {
 	});
 	
 	app.get('/reset', function(req, res) {
-		AM.deleteAllAccounts(function(){
+		AcccountManager.deleteAllAccounts(function(){
 			res.redirect('/print');
 		});
 	});

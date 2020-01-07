@@ -62,7 +62,7 @@ app.use(session({
 mongoUtil.connect( ( err, client ) => {
   if (err) console.log(err);
   require('./app/server/routes')(app);
-  require('./pollPrice');
+  require('./priceAlert');
 } );
 
 http.createServer(app).listen(app.get('port'), function(){

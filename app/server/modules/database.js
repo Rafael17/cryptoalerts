@@ -1,3 +1,4 @@
+const mongo 		= require('mongodb');
 const MongoClient 	= require('mongodb').MongoClient;
 
 var db;
@@ -16,6 +17,9 @@ Database = {
 	},
 	getDb: () => {
     	return db;
+  	},
+  	getMongo: () => {
+  		return mongo;
   	}
 };
 

@@ -1,9 +1,10 @@
 
-var CT = require('./modules/country-list');
-var AcccountManager = require('./modules/account-manager');
-var EM = require('./modules/email-dispatcher');
-var TP = require('./modules/trading-pair-list');
-var AlertManager = require('./modules/alert-manager');
+const CT = require('./modules/country-list');
+const AcccountManager = require('./modules/account-manager');
+const EM = require('./modules/email-dispatcher');
+const TP = require('./modules/trading-pair-list');
+const AlertManager = require('./modules/alert-manager');
+const PubSub = require('pubsub-js');
 
 module.exports = function(app) {
 
@@ -71,6 +72,7 @@ module.exports = function(app) {
 				if (e){
 					res.status(400).send('error-adding-price-alert');
 				}	else{
+					PubSub.publish('UPDATE PRICE ALERT LIST');
 					res.redirect('/price-alerts');
 				}
 			});

@@ -2,6 +2,7 @@ const BitMEXClient 	= require('bitmex-realtime-api');
 const PubSub 		= require('pubsub-js');
 const tradingPairs 	= require('./app/server/modules/trading-pair-list');
 const AlertManager 	= require('./app/server/modules/alert-manager');
+const Telegram 		= require('./telegram');
 
 var alerts 			= [];
 
@@ -20,7 +21,16 @@ const checkAlerts = (currentPrice, pair) => {
 const triggerAlert = (alert) => {
 	AlertManager.deletePriceAlertById(alert._id, (e, res) => {
 		if(!e) {
-			//Telegram.notifyUser(alert._userId, alert);
+			AlertManager.getTelegramChatIdByUserId(alert.userId, (e, res) => {
+				if(e) console.log("Telegram Chat Id not setup yet");
+				else {
+					const { price, cross, pair } = alert;
+					const { telegramChatId } = res;
+					const message = "Price Alert!\n" + pair + "\nPrice " + cross + " " + price;
+					Telegram.send(telegramChatId, message);
+				}
+			});
+			
 			PubSub.publish('UPDATE PRICE ALERT LIST');
 		}
 	});

@@ -4,11 +4,10 @@ const Markup = require('telegraf/markup');
 require('dotenv').config();
 
 const bot = new Telegraf(process.env.TELEGRAM_API_KEY);
-const telegramUser = 479300350;
 
 const Telegram = {
-    send: (message) => {
-        bot.telegram.sendMessage(telegramUser, message);   
+    send: (chatId, message) => {
+        bot.telegram.sendMessage(chatId, message);   
     },
 }
 

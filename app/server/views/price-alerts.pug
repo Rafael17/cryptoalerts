@@ -9,6 +9,8 @@ block content
 			.nav-item
 				button.btn.navbar-btn.btn-outline-dark#btn-logout Sign Out
 
+	div(style='margin:20px auto;text-align:center')
+		button.btn.btn-outline-dark#btn-create-price-alert Create Alert
 	input(type='hidden', value= udata._id)#udataId
 
 	div.container(style='margin:20px auto')
@@ -33,7 +35,9 @@ block content
 						form.form-buttons(method='post' action='/delete_alert/' + alerts[i]._id)
 							button(type='submit')#price-alerts-form-btn2.btn.btn-outline-dark X
 
-	.center-vertical
+	div.overlay.hide
+
+	div.center-vertical.modal-create-price-alert.hide
 		form.card.card-body.bg-light(method='post')#price-alerts-form
 			h2
 			h6#sub Create a new price alert.
@@ -63,6 +67,7 @@ block content
 			hr
 			.form-buttons
 				button(type='submit')#price-alerts-form-btn2.btn.btn-primary Submit
+				button(type='button').cancel.btn.btn-outline-dark#btn-cancel-create-price-alert Cancel
 
 	// display form errors in a custom modal window //
 
@@ -71,6 +76,6 @@ block content
 
 
 block scripts
-	script(src='/js/views/home.js')
+	script(src='/js/views/price-alerts.js')
 	script(src='/js/controllers/homeController.js')
 	script(src='/js/form-validators/accountValidator.js')

@@ -24,10 +24,10 @@ const triggerAlert = (alert) => {
 			AlertManager.getTelegramChatIdByUserId(alert.userId, (e, res) => {
 				if(e) console.log("Telegram Chat Id not setup yet");
 				else {
-					const { price, cross, pair } = alert;
+					const { price, cross, pair, message } = alert;
 					const { telegramChatId } = res;
-					const message = "Price Alert!\n" + pair + "\nPrice " + cross + " " + price;
-					Telegram.send(telegramChatId, message);
+					const text = "Price Alert!\n" + pair + "\nPrice " + cross + " " + price + "\n" + message;
+					Telegram.send(telegramChatId, text);
 				}
 			});
 			

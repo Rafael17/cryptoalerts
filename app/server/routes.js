@@ -79,6 +79,21 @@ module.exports = function(app) {
 		}
 	});
 
+	app.post('/delete_alert/:id', function(req, res) {
+		if (req.session.user == null){
+			res.redirect('/');
+		}	else{
+			AlertManager.deletePriceAlertById(req.params.id, (e, o) => {
+				if (e){
+					res.status(400).send('error-deleting-price-alert');
+				}	else{
+					PubSub.publish('UPDATE PRICE ALERT LIST');
+					res.redirect('/price-alerts');
+				}
+			});
+		}
+	});
+
 	app.get('/price-alerts', function(req, res) {
 
 		if (req.session.user == null){

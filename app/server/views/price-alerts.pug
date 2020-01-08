@@ -19,6 +19,7 @@ block content
 					th(style='width:220px') Trading Pair
 					th(style='width:220px') Price
 					th(style='width:220px') Cross Type
+					th(style='width:50px') Delete
 			tbody
 			- for (var i = 0; i < alerts.length; i++)
 				tr
@@ -26,6 +27,9 @@ block content
 					td= alerts[i].pair
 					td= alerts[i].price
 					td= alerts[i].cross
+					td
+						form.form-buttons(method='post' action='/delete_alert/' + alerts[i]._id)
+							button(type='submit')#price-alerts-form-btn2.btn.btn-outline-dark X
 
 	.center-vertical
 		form.card.card-body.bg-light(method='post')#price-alerts-form

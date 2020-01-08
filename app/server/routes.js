@@ -67,7 +67,8 @@ module.exports = function(app) {
 				userId	: req.session.user._id,
 				price	: req.body['price'],
 				pair	: req.body['pair'],
-				cross	: req.body['cross']
+				cross	: req.body['cross'],
+				message : req.body['message']
 			}, (e, o) => {
 				if (e){
 					res.status(400).send('error-adding-price-alert');

@@ -17,6 +17,7 @@ AlertManager = {
 		});
 	},
 	addPriceAlert: (newData, callback) => {
+		console.log(newData);
 		priceAlert.insertOne(newData, callback);
 	},
 	deletePriceAlertById: (id, callback) => {

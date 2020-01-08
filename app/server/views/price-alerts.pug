@@ -16,10 +16,11 @@ block content
 			thead.thead-dark
 				tr
 					th(style='width:50px;text-align:center') #
-					th(style='width:220px') Trading Pair
-					th(style='width:220px') Price
-					th(style='width:220px') Cross Type
-					th(style='width:50px') Delete
+					th(style='width:50px') Trading Pair
+					th(style='width:50px') Price
+					th(style='width:50px') Cross Type
+					th(style='width:220px') Message
+					th(style='width:50px;text-align:center') Delete
 			tbody
 			- for (var i = 0; i < alerts.length; i++)
 				tr
@@ -27,7 +28,8 @@ block content
 					td= alerts[i].pair
 					td= alerts[i].price
 					td= alerts[i].cross
-					td
+					td= alerts[i].message
+					td(style='text-align:center')
 						form.form-buttons(method='post' action='/delete_alert/' + alerts[i]._id)
 							button(type='submit')#price-alerts-form-btn2.btn.btn-outline-dark X
 
@@ -54,6 +56,10 @@ block content
 					select.custom-select#cross-list(name='cross')
 						option Cross Up
 						option Cross Down
+			.form-group.row
+				label.col-sm-3.col-form-label.col-form-label-sm Price Alert
+				.col-sm-9
+					textarea.form-control(type='text', name='message', value='', maxlength="200")
 			hr
 			.form-buttons
 				button(type='submit')#price-alerts-form-btn2.btn.btn-primary Submit

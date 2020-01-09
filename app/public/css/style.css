@@ -150,3 +150,21 @@ h6 {
   height: 100%;
   background: rgba(0,0,0,0.7);
 }
+@media screen and (max-width: 400px) {
+  .container {
+    width: 100%;
+    padding: 0;
+    max-width: 100%;
+    margin: 0;
+  }
+  table {
+    table-layout: fixed;
+    overflow-x: auto;
+    display: block;
+  }
+  td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-wrap: break-word;
+  }
+}

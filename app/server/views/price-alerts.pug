@@ -13,7 +13,7 @@ block content
 		button.btn.btn-outline-dark#btn-create-price-alert Create Alert
 	input(type='hidden', value= udata._id)#udataId
 
-	div.container(style='margin:20px auto')
+	div.container
 		table.table.table-bordered.table-striped
 			thead.thead-dark
 				tr
@@ -61,7 +61,7 @@ block content
 						option Cross Up
 						option Cross Down
 			.form-group.row
-				label.col-sm-3.col-form-label.col-form-label-sm Price Alert
+				label.col-sm-3.col-form-label.col-form-label-sm Message
 				.col-sm-9
 					textarea.form-control(type='text', name='message', value='', maxlength="200")
 			hr

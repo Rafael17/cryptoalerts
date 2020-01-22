@@ -11,6 +11,7 @@ block content
 
 	div(style='margin:20px auto;text-align:center')
 		button.btn.btn-outline-dark#btn-create-price-alert Create Alert
+		button.btn.btn-outline-dark#btn-link-telegram Link Telegram
 	input(type='hidden', value= udata._id)#udataId
 
 	div.container
@@ -36,6 +37,14 @@ block content
 							button(type='submit')#price-alerts-form-btn2.btn.btn-outline-dark X
 
 	div.overlay.hide
+
+	div.center-vertical.modal-link-telegram.hide
+		div.card.card-body.bg-light
+			h6 Send the following passcode to @RoboCryptoBot Telegram bot from your phone to receive alerts:
+			hr
+			h5(style='text-align:center')= udata.telegramPasscode
+			hr
+			button(type='button').cancel.btn.btn-outline-dark#btn-cancel-link-telegram Ok
 
 	div.center-vertical.modal-create-price-alert.hide
 		form.card.card-body.bg-light(method='post')#price-alerts-form

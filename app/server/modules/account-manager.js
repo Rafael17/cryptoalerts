@@ -95,6 +95,7 @@ exports.addNewAccount = function(newData, callback)
 						newData.pass = hash;
 					// append date stamp when record was created //
 						newData.date = moment().format('MMMM Do YYYY, h:mm:ss a');
+						newData.telegramPasscode = generateSalt(6);
 						accounts.insertOne(newData, callback);
 					});
 				}
@@ -132,6 +133,15 @@ exports.updatePassword = function(passKey, newPass, callback)
 	});
 }
 
+
+/* 
+	Telegram methods
+*/
+
+exports.addTelegramId = function(passcode, telegramChatId, callback) {
+	accounts.findOneAndUpdate({telegramPasscode:passcode}, {$set:{telegramChatId:telegramChatId}}, callback);
+}
+
 /*
 	account lookup methods
 */
@@ -159,11 +169,11 @@ exports.deleteAllAccounts = function(callback)
 	private encryption & validation methods
 */
 
-var generateSalt = function()
+var generateSalt = function(numCharacters)
 {
 	var set = '0123456789abcdefghijklmnopqurstuvwxyzABCDEFGHIJKLMNOPQURSTUVWXYZ';
 	var salt = '';
-	for (var i = 0; i < 10; i++) {
+	for (var i = 0; i < numCharacters; i++) {
 		var p = Math.floor(Math.random() * set.length);
 		salt += set[p];
 	}
@@ -176,7 +186,7 @@ var md5 = function(str) {
 
 var saltAndHash = function(pass, callback)
 {
-	var salt = generateSalt();
+	var salt = generateSalt(10);
 	callback(salt + md5(pass + salt));
 }
 

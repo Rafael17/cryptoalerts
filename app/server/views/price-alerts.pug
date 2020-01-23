@@ -13,6 +13,7 @@ block content
 		button.btn.btn-outline-dark#btn-create-price-alert Create Alert
 		button.btn.btn-outline-dark#btn-link-telegram Link Telegram
 	input(type='hidden', value= udata._id)#udataId
+	input(type='hidden', value= udata.telegramChatId)#udataTelegramChatId
 
 	div.container
 		table.table.table-bordered.table-striped
@@ -34,17 +35,17 @@ block content
 					td= alerts[i].message
 					td(style='text-align:center')
 						form.form-buttons(method='post' action='/delete_alert/' + alerts[i]._id)
-							button(type='submit')#price-alerts-form-btn2.btn.btn-outline-dark X
+							button(type='submit').btn.btn-outline-dark X
 
 	div.overlay.hide
 
 	div.center-vertical.modal-link-telegram.hide
 		div.card.card-body.bg-light
-			h6 Send the following passcode to @RoboCryptoBot Telegram bot from your phone to receive alerts:
+			h6 To be able to receive alerts, download and open the Telegram app and send the following passcode to @RoboCryptoBot from your phone:
 			hr
 			h5(style='text-align:center')= udata.telegramPasscode
 			hr
-			button(type='button').cancel.btn.btn-outline-dark#btn-cancel-link-telegram Ok
+			button(type='button', style='width:60px;margin:auto').cancel.btn.btn-outline-dark#btn-cancel-link-telegram Ok
 
 	div.center-vertical.modal-create-price-alert.hide
 		form.card.card-body.bg-light(method='post')#price-alerts-form
@@ -75,12 +76,13 @@ block content
 					textarea.form-control(type='text', name='message', value='', maxlength="200")
 			hr
 			.form-buttons
-				button(type='submit')#price-alerts-form-btn2.btn.btn-primary Submit
+				button(type='button')#price-alerts-form-button.btn.btn-primary Submit
 				button(type='button').cancel.btn.btn-outline-dark#btn-cancel-create-price-alert Cancel
 
 	// display form errors in a custom modal window //
 
 	include modals/form-errors
+	include modals/alert
 
 
 

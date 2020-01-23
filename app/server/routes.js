@@ -74,7 +74,7 @@ module.exports = function(app) {
 					res.status(400).send('error-adding-price-alert');
 				}	else{
 					PubSub.publish('UPDATE PRICE ALERT LIST');
-					res.redirect('/price-alerts');
+					res.status(200).send('ok');
 				}
 			});
 		}
@@ -108,6 +108,24 @@ module.exports = function(app) {
 					alerts: alerts
 				});
 			});
+		}
+	});
+
+	app.get('/telegram-chat-id', (req, res) => {
+		if (req.session.user == null){
+			res.redirect('/');
+		}	else{
+			AcccountManager.getUser(req.session.user._id, (error, object) => {
+				if(error)
+					res.status(400).send('error-getting-telegram-chat-id');
+				else {
+					if(!object.telegramChatId) {
+						res.status(404).send('error-telegram-chat-id-not-set');	
+					} else {
+						res.status(200).send('ok');
+					}
+				}
+			})
 		}
 	});
 	

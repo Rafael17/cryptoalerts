@@ -21,6 +21,4 @@ $(document).ready(function(){
 		$('.overlay').addClass('hide');
 	});
 
-	btn-link-telegram
-
 });

@@ -39,6 +39,10 @@ exports.manualLogin = function(user, pass, callback)
 	});
 }
 
+exports.getUser = function(userId, callback) {
+	accounts.findOne({_id: getObjectId(userId)}, callback);
+}
+
 exports.generateLoginKey = function(user, ipAddress, callback)
 {
 	let cookie = guid();

@@ -13,6 +13,8 @@ function HomeController()
 // handle account deletion //
 	$('.modal-confirm .submit').click(function(){ that.deleteAccount(); });
 
+	$('#price-alerts-form-button').click(function(){ that.attemptCreateAlert(); });
+
 	this.deleteAccount = function()
 	{
 		$('.modal-confirm').modal('hide');
@@ -44,6 +46,50 @@ function HomeController()
 			}
 		});
 	}
+
+	this.attemptCreateAlert = function()
+	{
+		var that = this;
+		
+		if($('#udataTelegramChatId').val().length === 0) {
+			$.ajax({
+				url: '/telegram-chat-id',
+				type: 'GET',
+				success: function(data){
+					that.createAlert();	
+				},
+				error: function(jqXHR){
+					console.log(jqXHR.responseText+' :: '+jqXHR.statusText);
+					if(jqXHR.status === 404) {
+						$('.modal-form-errors .modal-body p').text('Please correct the following problems :');
+						var ul = $('.modal-form-errors .modal-body ul');
+						ul.empty();
+						ul.append('<li>To set alerts and receive notifications, first link your telegram account</li>');
+						$('.modal-form-errors').modal('show');
+					}
+				}
+			});
+		} else {
+			that.createAlert();	
+		}
+	}
+
+	this.createAlert = function()
+	{
+		$.ajax({
+			url: '/price-alerts',
+			type: 'POST',
+			data: $("#price-alerts-form").serialize(),
+			success: function(data){
+				console.log(data);
+	 			that.showLockedAlert('Your alert has been set!');
+			},
+			error: function(jqXHR){
+				console.log(jqXHR.responseText+' :: '+jqXHR.statusText);
+			}
+		});
+	}
+
 
 	this.showLockedAlert = function(msg){
 		$('.modal-alert').modal({ show : false, keyboard : false, backdrop : 'static' });

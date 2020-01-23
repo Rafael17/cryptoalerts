@@ -28,9 +28,6 @@ h6 {
 /*
 	login window
 */
-#login {
-  width: 380px;
-}
 #login .btn {
   float: left;
   width: 48%;
@@ -153,9 +150,20 @@ h6 {
 .card {
   min-width: 400px;
 }
-@media screen and (max-width: 400px) {
+@media screen and (max-width: 576px) {
   .card {
     min-width: 250px;
+  }
+  #account-form-container label {
+    text-align: left;
+    padding-left: 5px;
+  }
+  #account-form-container .form-group {
+    margin-bottom: 0;
+  }
+  #login .btn {
+    width: 100%;
+    margin-bottom: 1rem;
   }
   .container {
     width: 100%;

@@ -96,7 +96,6 @@ module.exports = function(app) {
 	});
 
 	app.get('/price-alerts', function(req, res) {
-
 		if (req.session.user == null){
 			res.redirect('/');
 		}	else{
@@ -105,7 +104,8 @@ module.exports = function(app) {
 					title : 'Price Alerts',
 					pairs : TP,
 					udata : req.session.user,
-					alerts: alerts
+					alerts: alerts,
+					botName:process.env.BOT_NAME
 				});
 			});
 		}

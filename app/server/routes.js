@@ -2,7 +2,7 @@
 const CT = require('./modules/country-list');
 const AcccountManager = require('./modules/account-manager');
 const EM = require('./modules/email-dispatcher');
-const TP = require('./modules/trading-pair-list');
+const TradingPairs = require('./modules/tradingPairs');
 const AlertManager = require('./modules/alert-manager');
 const PubSub = require('pubsub-js');
 
@@ -63,10 +63,13 @@ module.exports = function(app) {
 		if (req.session.user == null){
 			res.redirect('/');
 		}	else{
+			const exchangePair = req.body['exchangePair'].split('-');
+
 			AlertManager.addPriceAlert({
 				userId	: req.session.user._id,
+				exchange: exchangePair[0],
 				price	: req.body['price'],
-				pair	: req.body['pair'],
+				pair	: exchangePair[1],
 				cross	: req.body['cross'],
 				message : req.body['message']
 			}, (e, o) => {
@@ -99,13 +102,21 @@ module.exports = function(app) {
 		if (req.session.user == null){
 			res.redirect('/');
 		}	else{
-			AlertManager.getPriceAlerts(req.session.user._id, (e, alerts) => {
-				res.render('price-alerts', {
-					title : 'Price Alerts',
-					pairs : TP,
-					udata : req.session.user,
-					alerts: alerts,
-					botName:process.env.BOT_NAME
+			TradingPairs.getPairs((error, pairs) => {
+				var exchanges = Array.from(new Set(pairs.map(e => e.exchange)));
+				const p = exchanges.map((exchange) => {
+					const p = pairs.filter((pair) => pair.exchange === exchange).map((e) => e.pair);
+					return {exchange: exchange, pairs: p};
+				});
+				AlertManager.getPriceAlerts(req.session.user._id, (e, alerts) => {
+					res.render('price-alerts', {
+						title : 'Price Alerts',
+						exchanges: ['Bitmex','Binance'],
+						pairs : p,
+						udata : req.session.user,
+						alerts: alerts,
+						botName:process.env.BOT_NAME
+					});
 				});
 			});
 		}

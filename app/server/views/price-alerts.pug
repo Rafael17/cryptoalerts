@@ -20,6 +20,7 @@ block content
 			thead.thead-dark
 				tr
 					th(style='width:50px;text-align:center') #
+					th(style='width:50px') Exchange
 					th(style='width:50px') Trading Pair
 					th(style='width:50px') Price
 					th(style='width:50px') Cross Type
@@ -29,6 +30,7 @@ block content
 			- for (var i = 0; i < alerts.length; i++)
 				tr
 					td(style='text-align:center')= i+1
+					td= alerts[i].exchange
 					td= alerts[i].pair
 					td= alerts[i].price
 					td= alerts[i].cross
@@ -58,9 +60,11 @@ block content
 			.form-group.row.margin-zero
 				label.col-sm-3.col-form-label.col-form-label-sm Trading Pair
 				.col-sm-9
-					select.custom-select#pair-list(name='pair')
+					select.custom-select#pair-list(name='exchangePair')
 						each item in pairs
-							option(selected=item.name == udata.country)= item.name
+							optgroup(label= item.exchange)
+								each pair in item.pairs
+									option(value= item.exchange+'-'+pair)= pair
 
 			.form-group.row
 				label.col-sm-3.col-form-label.col-form-label-sm Price Alert
@@ -93,3 +97,4 @@ block scripts
 	script(src='/js/views/price-alerts.js')
 	script(src='/js/controllers/homeController.js')
 	script(src='/js/form-validators/accountValidator.js')
+	script(src='https://cdn.jsdelivr.net/npm/select2@4.0.12/dist/js/select2.min.js')

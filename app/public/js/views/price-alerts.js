@@ -21,4 +21,6 @@ $(document).ready(function(){
 		$('.overlay').addClass('hide');
 	});
 
+	$('#pair-list').select2({width:'100%'});
+	
 });

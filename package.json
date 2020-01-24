@@ -12,7 +12,7 @@
   "dependencies": {
     "bitmex-realtime-api": "^0.4.3",
     "body-parser": "^1.18.3",
-    "connect-mongo": "^2.0.1",
+    "connect-mongo": "^3.2.0",
     "cookie-parser": "^1.4.3",
     "dotenv": "^8.2.0",
     "emailjs": "^2.2.0",
@@ -22,6 +22,7 @@
     "mongodb": "^3.1.10",
     "pubsub-js": "^1.8.0",
     "pug": "^2.0.3",
+    "request": "^2.88.0",
     "stylus": "^0.54.5",
     "telegraf": "^3.34.1"
   }

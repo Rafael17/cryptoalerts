@@ -102,9 +102,6 @@ h6 {
 /*
 	modal windows
 */
-.modal .modal-dialog {
-  width: 480px;
-}
 .modal .form-group {
   margin-bottom: 0px;
 }

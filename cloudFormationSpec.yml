@@ -1,0 +1,112 @@
+
+Parameters:
+  # Use public Systems Manager Parameter
+  LatestAmiId:
+    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
+  KeyName:
+    Type: 'AWS::EC2::KeyPair::KeyName'
+    Description: 'EC2 KeyPair to enable SSH access to the instance'
+  TelegramAPIKey:
+    Type: 'String'
+    AllowedPattern: '^[a-zA-Z0-9:_-]+$'
+    Description: |
+      Required! Telegram API Key to enable sending alerts to users.
+      To get a key send '/newbot' to BotFater in your Telegram app and follow the instructions
+  TelegramBotName:
+    Type: 'String'
+    AllowedPattern: '^@[a-zA-Z0-9_.]+$'
+    Description: 'Required! Username of Telegram bot from above. Should start with @'
+
+Resources:
+  WebSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: 'Allow HTTP traffic through port 80'
+      SecurityGroupIngress:
+      - CidrIp: 0.0.0.0/0
+        FromPort: 80
+        IpProtocol: tcp
+        ToPort: 80
+
+  SSHSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: 'Allow SSH traffic through port 22'
+      SecurityGroupIngress:
+      - CidrIp: 0.0.0.0/0
+        FromPort: 22
+        IpProtocol: tcp
+        ToPort: 22
+
+  EC2Instance:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      KeyName: !Ref KeyName
+      AvailabilityZone: 'us-west-1a'
+      ImageId: !Ref LatestAmiId
+      InstanceType: t2.micro
+      SecurityGroups:
+      - !Ref WebSecurityGroup
+      - !Ref SSHSecurityGroup
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -ex
+
+          # output user data logs into a separate place for debugging
+          exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
+
+          # get node into yum
+          curl --silent --location https://rpm.nodesource.com/setup_13.x | bash -
+
+          # install node (and npm) with yum
+          yum -y install nodejs
+
+          # install pm2 to restart node app
+          npm i -g pm2
+
+          # Enable installing MongoDB using yum
+          cat > /etc/yum.repos.d/mongodb-org-4.2.repo <<EOF
+          [mongodb-org-4.2]
+          name=MongoDB Repository
+          baseurl=https://repo.mongodb.org/yum/amazon/2/mongodb-org/4.2/x86_64/
+          gpgcheck=1
+          enabled=1
+          gpgkey=https://www.mongodb.org/static/pgp/server-4.2.asc
+          EOF
+
+          # Install and start mongoDB
+          yum install -y mongodb-org
+          service mongod start
+
+
+          # Install nginx
+          amazon-linux-extras install nginx1.12 -y
+
+          # Redirect traffic from port 80 to nginx port (3000)
+          sed -ie 's/^[^#]\s*location\s\/\s./&\nproxy_set_header X-Real-IP $remote_addr;\nproxy_set_header Host $http_host;\nproxy_pass http:\/\/127.0.0.1:3000;/g' /etc/nginx/nginx.conf
+
+          # Start nginx server
+          service nginx start
+
+          # Install GIT
+          yum install git -y
+
+          # Clone Repository 
+          cd /usr/share/nginx/html/
+          rm * -r
+          git clone https://Rafael17@bitbucket.org/Rafael17/cryptoalerts.git .
+
+          # Create .env file with Telegram info from stack parameters
+          cat > .env <<EOF
+          TELEGRAM_API_KEY=${TelegramAPIKey}
+          BOT_NAME=${TelegramBotName}
+          EOF
+
+          npm install
+
+          # Start node server
+          pm2 start app.js
+
+
+

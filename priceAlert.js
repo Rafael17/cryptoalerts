@@ -1,4 +1,3 @@
-const BitMEXClient 	= require('bitmex-realtime-api');
 const PubSub 		= require('pubsub-js');
 const tradingPairs 	= require('./app/server/modules/trading-pair-list');
 const AlertManager 	= require('./app/server/modules/alert-manager');
@@ -7,8 +6,6 @@ const Telegram 		= require('./telegram');
 const request 		= require('request');
 
 var alerts 			= [];
-
-const client = new BitMEXClient({testnet: false, maxTableLen: 1});
 
 const checkAlerts = (currentPrice, pair, exchange) => {
 	alerts.filter(v => v.pair == pair && v.exchange == exchange).map(alert => {
@@ -38,9 +35,24 @@ const triggerAlert = (alert, direction) => {
 	});
 }
 
-const binanceAPIRequest = (callback) => {
+/* PubSub methods */
+const updatePriceAlertList = (callback) => {
+	AlertManager.getAllPriceAlerts((e, res) => {
+		alerts = res;
+		if(typeof callback === 'function') callback();
+	});
+}
+PubSub.subscribe('UPDATE PRICE ALERT LIST', updatePriceAlertList);
+// Fill initial price alerts already in DB
+updatePriceAlertList()
+
+
+const binanceURL = 'https://api.binance.com/api/v3/ticker/price';
+const bitmexURL = 'https://www.bitmex.com/api/v1/trade/bucketed?binSize=1m&partial=true&count=100&reverse=true';
+
+const exchangeHTTPRequest = (url, callback) => {
 	request({
-		url:'https://api.binance.com/api/v3/ticker/price',
+		url: url,
 		json: true,
 		method: "GET",
 		timeout: 10000
@@ -51,45 +63,38 @@ const binanceAPIRequest = (callback) => {
 	});
 }
 
-const requestLoop = setInterval(() => {
-	binanceAPIRequest((data) => {
-		data.forEach(({symbol, price}) => {
-			checkAlerts(price,symbol,'Binance')
-		})
-	})
-}, 1000);
+const requestLoop = (milliseconds, url, callback) => {
+	setInterval(() => {
+		exchangeHTTPRequest(url, callback);
+	}, milliseconds);
+}
 
-
-//binanceAPIRequest();
 const storeExchangesAndPairs = () => {
-	binanceAPIRequest((pairs) => {
-		const p = pairs.map((e)=> e.symbol);
-		p.forEach((elem)=> {
+	exchangeHTTPRequest(binanceURL, (pairs) => {
+		pairs.map((e)=> e.symbol).forEach((elem)=> {
 			TradingPairs.updatePairs('Binance', elem);
 		})
 	})
-	TradingPairs.updatePairs('Bitmex', 'XBTUSD');
-	TradingPairs.updatePairs('Bitmex', 'ETHUSD');
 
-	//Exchanges.updateExchangesAndPairs('Bitmex', ['XBTUSD', 'ETHUSD']);
+	exchangeHTTPRequest(bitmexURL, (pairs) => {
+		// ignore pairs that start with a dot
+		const p = pairs.map((e)=> e.symbol).filter((e) => !e.startsWith("."));
+		p.forEach((elem)=> {
+			TradingPairs.updatePairs('Bitmex', elem);
+		})
+	})
 };
 storeExchangesAndPairs();
 
-/* PubSub methods */
-const updatePriceAlertList = (callback) => {
-	AlertManager.getAllPriceAlerts((e, res) => {
-		alerts = res;
-		if(typeof callback === 'function') callback();
-	});
-}
-PubSub.subscribe('UPDATE PRICE ALERT LIST', updatePriceAlertList);
-
-
-updatePriceAlertList(() => {
-	client.addStream('XBTUSD', 'trade', (data, symbol, tableName) => {
-		checkAlerts(data[0].price, data[0].symbol, 'Bitmex');
-	});
-	client.addStream('ETHUSD', 'trade', (data, symbol, tableName) => {
-		checkAlerts(data[0].price, data[0].symbol, 'Bitmex');
-	});
+requestLoop(1000, binanceURL, (data) => {
+	data.forEach(({symbol, price}) => {
+		checkAlerts(price,symbol,'Binance');
+	})
 });
+// Bitmex rate limit is 2 seconds per request
+requestLoop(3000, bitmexURL, (data) => {
+	data.forEach(({symbol, close}) => {
+		checkAlerts(close,symbol,'Bitmex');
+	})
+});
+

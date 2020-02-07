@@ -8,6 +8,7 @@ Parameters:
     Type: 'AWS::EC2::KeyPair::KeyName'
     Description: 'EC2 KeyPair to enable SSH access to the instance'
   TelegramAPIKey:
+    NoEcho: true
     Type: 'String'
     AllowedPattern: '^[a-zA-Z0-9:_-]+$'
     Description: |
@@ -106,7 +107,7 @@ Resources:
           npm install
 
           # Start node server
-          pm2 start app.js
+          pm2 start app.js --name Crypto-Alerts
 
 
 

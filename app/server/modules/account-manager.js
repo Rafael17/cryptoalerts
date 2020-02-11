@@ -141,9 +141,11 @@ exports.updatePassword = function(passKey, newPass, callback)
 /* 
 	Telegram methods
 */
-
+exports.getUserByTelegramChatId = function(telegramChatId, callback) {
+	accounts.findOne({telegramChatId: telegramChatId}, callback);
+}
 exports.addTelegramId = function(passcode, telegramChatId, callback) {
-	accounts.findOneAndUpdate({telegramPasscode:passcode}, {$set:{telegramChatId:telegramChatId}}, callback);
+	accounts.findOneAndUpdate({telegramPasscode: passcode}, {$set: {telegramChatId:telegramChatId}},  {returnOriginal: false}, callback);
 }
 
 /*

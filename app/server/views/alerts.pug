@@ -36,8 +36,7 @@ block content
 					td= alerts[i].cross
 					td= alerts[i].message
 					td(style='text-align:center')
-						form.form-buttons(method='post' action='/delete_alert/' + alerts[i]._id)
-							button(type='submit').btn.btn-outline-dark X
+						button(type='button', data-id=alerts[i]._id).btn.btn-outline-dark.btn-delete-price X
 
 	div.overlay.hide
 

@@ -22,7 +22,7 @@ module.exports = function(app) {
 				if (o){
 					AcccountManager.autoLogin(o.user, o.pass, function(o){
 						req.session.user = o;
-						res.redirect('/price-alerts');
+						res.redirect('/alerts');
 					});
 				}	else{
 					res.render('login', { title: 'Hello - Please Login To Your Account' });
@@ -54,12 +54,67 @@ module.exports = function(app) {
 		req.session.destroy(function(e){ res.status(200).send('ok'); });
 	})
 
+
+
+/*
+	Users
+*/
+	app.get('/users/', function(req, res) {
+
+		const { telegramPasscode, telegramChatId } = req.query;
+		if(telegramPasscode && telegramChatId) {
+			AcccountManager.getUserByTelegramChatId(telegramChatId * 1, (error, object) => {
+				if(object == null) {
+					AcccountManager.addTelegramId(telegramPasscode, telegramChatId * 1, (error, object) => {
+						if(object != null && !object.lastErrorObject.updatedExisting) {
+							res.json({error: true, message: 'Wrong passcode! Login to crypto alerts to view your telegram passcode', result: null});
+						} else {
+							res.json({error: false, message: 'Account has been linked! Now you will receive price alerts in this channel', result: object});
+						}
+					});
+				}
+				else {
+					res.json({error: false, result: object});
+				}
+			})
+		} 
+	});
+
+	app.get('/users/:id/', function(req, res) {
+		if (req.session.user == null){
+			res.redirect('/');
+			return;
+		} else if(req.session.user._id !== req.params.id) {
+			res.redirect('/');
+			return;
+		} 
+
+		if(req.query.filters == 'telegramChatId') {
+			AcccountManager.getUser(req.session.user._id, (error, object) => {
+				if(error)
+					res.status(400).send('error-getting-telegram-chat-id');
+				else {
+					if(!object.telegramChatId) {
+						res.status(404).send('error-telegram-chat-id-not-set');	
+					} else {
+						res.status(200).send('ok');
+					}
+				}
+			});
+		}
+	});
+
+	app.get('/users/:id/alerts', function(req, res) {
+		AlertManager.getPriceAlerts(req.params.id, (e, alerts) => {
+			res.json(alerts);
+		});
+	});
+
 /*
 	price alerts
 
 */
-
-	app.post('/price-alerts', function(req, res) {
+	app.post('/alerts', function(req, res) {
 		if (req.session.user == null){
 			res.redirect('/');
 		}	else{
@@ -83,22 +138,7 @@ module.exports = function(app) {
 		}
 	});
 
-	app.post('/delete_alert/:id', function(req, res) {
-		if (req.session.user == null){
-			res.redirect('/');
-		}	else{
-			AlertManager.deletePriceAlertById(req.params.id, (e, o) => {
-				if (e){
-					res.status(400).send('error-deleting-price-alert');
-				}	else{
-					PubSub.publish('UPDATE PRICE ALERT LIST');
-					res.redirect('/price-alerts');
-				}
-			});
-		}
-	});
-
-	app.get('/price-alerts', function(req, res) {
+	app.get('/alerts', function(req, res) {
 		if (req.session.user == null){
 			res.redirect('/');
 		}	else{
@@ -109,7 +149,7 @@ module.exports = function(app) {
 					return {exchange: exchange, pairs: p};
 				});
 				AlertManager.getPriceAlerts(req.session.user._id, (e, alerts) => {
-					res.render('price-alerts', {
+					res.render('alerts', {
 						title : 'Price Alerts',
 						exchanges: ['Bitmex','Binance'],
 						pairs : p,
@@ -122,28 +162,24 @@ module.exports = function(app) {
 		}
 	});
 
-	app.get('/telegram-chat-id', (req, res) => {
+	app.delete('/alerts/:id', function(req, res) {
 		if (req.session.user == null){
 			res.redirect('/');
 		}	else{
-			AcccountManager.getUser(req.session.user._id, (error, object) => {
-				if(error)
-					res.status(400).send('error-getting-telegram-chat-id');
-				else {
-					if(!object.telegramChatId) {
-						res.status(404).send('error-telegram-chat-id-not-set');	
-					} else {
-						res.status(200).send('ok');
-					}
+			AlertManager.deletePriceAlertById(req.params.id, (e, o) => {
+				if (e){
+					res.status(400).send('error-deleting-price-alert');
+				}	else{
+					PubSub.publish('UPDATE PRICE ALERT LIST');
+					res.redirect('/alerts');
 				}
-			})
+			});
 		}
 	});
 	
 /*
 	control panel
 */
-	
 	app.get('/home', function(req, res) {
 		if (req.session.user == null){
 			res.redirect('/');

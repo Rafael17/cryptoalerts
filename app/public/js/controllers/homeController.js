@@ -50,12 +50,11 @@ function HomeController()
 	this.attemptCreateAlert = function()
 	{
 		var that = this;
-		
 		if($('#udataTelegramChatId').val().length === 0) {
 			$.ajax({
-				url: '/telegram-chat-id',
+				url: '/users/' + $('#udataId').val()+'/?filters=telegramChatId',
 				type: 'GET',
-				success: function(data){
+				success: function(data) {
 					that.createAlert();	
 				},
 				error: function(jqXHR){
@@ -77,7 +76,7 @@ function HomeController()
 	this.createAlert = function()
 	{
 		$.ajax({
-			url: '/price-alerts',
+			url: '/alerts',
 			type: 'POST',
 			data: $("#price-alerts-form").serialize(),
 			success: function(data){

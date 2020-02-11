@@ -20,6 +20,13 @@ $(document).ready(function(){
 		$('.modal-link-telegram').addClass('hide');
 		$('.overlay').addClass('hide');
 	});
+	$('.btn-delete-price').click(function(){
+		var id = $(this).attr('data-id');
+		const xhttp = new XMLHttpRequest();
+    	xhttp.open("DELETE", `/alerts/${id}`, false);
+    	xhttp.send();
+    	location.reload();
+	});
 
 	$('#pair-list').select2({width:'100%'});
 	

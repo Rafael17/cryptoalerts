@@ -99,7 +99,7 @@ exports.addNewAccount = function(newData, callback)
 						newData.pass = hash;
 					// append date stamp when record was created //
 						newData.date = moment().format('MMMM Do YYYY, h:mm:ss a');
-						newData.telegramPasscode = generateSalt(6);
+						newData.telegramPasscode = generateSalt(6).toUpperCase();
 						accounts.insertOne(newData, callback);
 					});
 				}

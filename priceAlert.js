@@ -2,8 +2,8 @@ const PubSub 		= require('pubsub-js');
 const tradingPairs 	= require('./app/server/modules/trading-pair-list');
 const AlertManager 	= require('./app/server/modules/alert-manager');
 const TradingPairs 	= require('./app/server/modules/tradingPairs');
-const Telegram 		= require('./telegram');
 const request 		= require('request');
+const querystring 	= require('querystring');
 
 var alerts 			= [];
 
@@ -26,12 +26,28 @@ const triggerAlert = (alert, direction) => {
 					const { price, cross, pair, message, exchange } = alert;
 					const { telegramChatId } = res;
 					const text = pair + "\n" + exchange + "\nPrice " + direction + " " + price + "\n" + message;
-					Telegram.send(telegramChatId, text);
+					sendMessageToTelegram({telegramChatId: telegramChatId, text: text})
 				}
 			});
-			
 			PubSub.publish('UPDATE PRICE ALERT LIST');
 		}
+	});
+}
+
+const sendMessageToTelegram = (form) => {
+	const formData = querystring.stringify(form);
+	const contentLength = formData.length;
+	request({
+		url: process.env.TELEGRAM_APP_ORIGIN,
+		headers: {
+			'Content-Length': contentLength,
+			'Content-Type': 'application/x-www-form-urlencoded'
+		},
+		body: formData,
+		method: 'POST'
+	}, (err, res, body) => {
+		if(err) 
+			return console.log(err); 
 	});
 }
 

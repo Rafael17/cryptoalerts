@@ -3,82 +3,73 @@ const Extra = require('telegraf/extra');
 const Markup = require('telegraf/markup');
 const http = require('http');
 const request = require('request');
+const express = require('express');
+const bodyParser = require('body-parser');
 
+process.env.SERVER_SCHEME = 'http'
+process.env.SERVER_HOSTNAME = 'localhost';
+process.env.SERVER_PORT = '3000';
+process.env.SERVER_ORIGIN = process.env.SERVER_SCHEME + '://' + process.env.SERVER_HOSTNAME + ':' + process.env.SERVER_PORT;
+
+process.env.TELEGRAM_APP_SCHEME = 'http';
+process.env.TELEGRAM_APP_HOSTNAME = 'localhost';
+process.env.TELEGRAM_APP_PORT = '3001';
+
+
+const app = express();
+app.set('port', process.env.TELEGRAM_APP_PORT);
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 require('dotenv').config();
 const bot = new Telegraf(process.env.TELEGRAM_API_KEY);
-const port = 80;
-
-const Telegram = {
-    send: (chatId, message) => {
-        bot.telegram.sendMessage(chatId, message);   
-    },
-}
 
 const regexEverything = new RegExp(/.*/,'i');
 bot.hears(regexEverything, (ctx) => {
     const telegramChatId = ctx.message.from.id;
     const input = ctx.match[0];
-    var message = [];
-/*
-	if(input === '/list') {
-		request('http://localhost:3000/users/?telegramChatId=' + telegramChatId, { json: true }, (error, res, body) => {
-            if (error) { return console.log(error); }
-            request('http://localhost:3000/users/' + body._id + '/alerts', { json: true }, (error, res, body) => {
-                if (error) { return console.log(error); }
-
-                message = body.map(({ exchange, price, pair, cross }) => {
-                    return exchange + '\n' + pair + '\n' + price + '\n' + cross +'\n';
-                })
-                ctx.reply(message.join('\n'));
-                //console.log(body);
-            })
-		});
-	} else {
-        */
-        request('http://localhost:3000/users/?telegramPasscode=' + input + '&telegramChatId=' + telegramChatId, { json: true }, (e, res, body) => {
-            const { error, message, result } = body
-            if(error) {
-                ctx.reply(message);
-                return;
-            } else if(message != null) {
-                ctx.reply(message);
-            }
-            
-        })
-    //}
-
-    //ctx.reply(input);
-    /*
+    var returnMessage = [];
     
-    /*
-    AcccountManager.addTelegramId(input, telegramChatId, (error, object) => {
-    	if(!error) {
-    		if(object.lastErrorObject.updatedExisting) {
-    			ctx.reply('Great job! Now you will receive crypto alerts on this channel!');
-    		} else {
-    			ctx.reply('Please type in your 6 character telegram passcode');
-    		}
-    	} else {
-    		ctx.reply('Please type in your 6 character telegram passcode');
-    	}
+    request(process.env.SERVER_ORIGIN + '/users/?telegramPasscode=' + input + '&telegramChatId=' + telegramChatId, { json: true }, (e, res, body) => {
+        const { error, message, result } = body
+        if(error) {
+            ctx.reply(message);
+            return;
+        } else if(message == 'account-linked') {
+            ctx.reply("Account has been linked! Now you will receive price alerts in this channel");
+        } else {
+            switch(input) {
+                case '/list':
+                    request(process.env.SERVER_ORIGIN + '/users/' + result._id + '/alerts', { json: true }, (error, res, body) => {
+                        if (error) { return console.log(error); }
+                        returnMessage = body.map(({ exchange, price, pair, cross }) => {
+                            return exchange + '\n' + pair + '\n' + price + '\n' + cross +'\n';
+                        });
+                        if(returnMessage.length === 0) {
+                            ctx.reply("No price alerts have been set");    
+                        } else {
+                            ctx.reply(returnMessage.join('\n'));
+                        }
+                    });
+                    break;
+                default:
+                    break;
+            }
+        }
     })
-    console.log(telegramChatId);
-    */
-
 });
 
 bot.startPolling();
 
-module.exports = Telegram;
-
-
-const serverFn = (req, res) => {
-	res.writeHead(200, {'Content-Type': 'text/plain'});
-	res.write('Hello World!');
-	res.end();
-}
-
-http.createServer(serverFn).listen(port, function() {
-	console.log('Express server listening on port ' + port);
+app.post('/', (req, res) => {
+    const { telegramChatId, text } = req.body;
+    bot.telegram.sendMessage(telegramChatId, text);   
+    res.json({error: false});
 });
+
+http.createServer(app).listen(app.get('port'), function() {
+	console.log('Express server listening on port ' + app.get('port'));
+});
+
+
+

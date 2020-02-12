@@ -69,12 +69,12 @@ module.exports = function(app) {
 						if(object != null && !object.lastErrorObject.updatedExisting) {
 							res.json({error: true, message: 'Wrong passcode! Login to crypto alerts to view your telegram passcode', result: null});
 						} else {
-							res.json({error: false, message: 'Account has been linked! Now you will receive price alerts in this channel', result: object});
+							res.json({error: false, message: 'account-linked', result: object});
 						}
 					});
 				}
 				else {
-					res.json({error: false, result: object});
+					res.json({error: false, message: null, result: object});
 				}
 			})
 		} 

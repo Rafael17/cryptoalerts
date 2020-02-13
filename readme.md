@@ -1,10 +1,22 @@
 # Crypto Alerts
-### Cryptocurrencies prices and indicators notification system with the following features:
-* Create price alerts
-* Set predefined indicator alerts 
+Set price alerts for cryptocurrency pairs and receive Telegram notifications
 
-	
 ## Technologies
-Project is created with:
-* Bitmex API
-* Telegram API
+* AWS
+* MongoDB
+* Nodejs
+* Docker
+
+## Supported Exchanges
+* Binance
+* Bitmex
+
+## Installation
+To run locally:
+```shell
+$ docker-compose up -d
+```
+Then open browser to localhost:3000
+
+## Deployment to AWS
+

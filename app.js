@@ -10,7 +10,7 @@ var mongoUtil = require('./app/server/modules/database');
 var app = express();
 
 app.locals.pretty = true;
-app.set('port', process.env.PORT || 3000);
+app.set('port', process.env.PORT || 80);
 app.set('views', __dirname + '/app/server/views');
 app.set('view engine', 'pug');
 app.use(cookieParser());

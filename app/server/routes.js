@@ -5,6 +5,7 @@ const EM = require('./modules/email-dispatcher');
 const TradingPairs = require('./modules/tradingPairs');
 const AlertManager = require('./modules/alert-manager');
 const PubSub = require('pubsub-js');
+const request = require('request');
 
 module.exports = function(app) {
 
@@ -22,7 +23,7 @@ module.exports = function(app) {
 				if (o){
 					AcccountManager.autoLogin(o.user, o.pass, function(o){
 						req.session.user = o;
-						res.redirect('/alerts');
+						res.redirect('/price-alerts');
 					});
 				}	else{
 					res.render('login', { title: 'Hello - Please Login To Your Account' });
@@ -81,6 +82,7 @@ module.exports = function(app) {
 	});
 
 	app.get('/users/:id/', function(req, res) {
+		/*
 		if (req.session.user == null){
 			res.redirect('/');
 			return;
@@ -88,7 +90,7 @@ module.exports = function(app) {
 			res.redirect('/');
 			return;
 		} 
-
+		*/
 		if(req.query.filters == 'telegramChatId') {
 			AcccountManager.getUser(req.session.user._id, (error, object) => {
 				if(error)
@@ -101,7 +103,16 @@ module.exports = function(app) {
 					}
 				}
 			});
+			return;
 		}
+		AcccountManager.getUser(req.params.id, (error, object) => {
+			if(error) {
+				res.json(error);
+				return;
+			}
+			res.json(object);
+		});
+
 	});
 
 	app.get('/users/:id/alerts', function(req, res) {
@@ -131,7 +142,7 @@ module.exports = function(app) {
 				if (e){
 					res.status(400).send('error-adding-price-alert');
 				}	else{
-					PubSub.publish('UPDATE PRICE ALERT LIST');
+					updatedPriceAlert()
 					res.status(200).send('ok');
 				}
 			});
@@ -139,6 +150,16 @@ module.exports = function(app) {
 	});
 
 	app.get('/alerts', function(req, res) {
+		AlertManager.getAllPriceAlerts((e, alerts) => {
+			if(e) {
+				res.json(e);
+				return;
+			}
+			res.json(alerts);
+		});
+	});
+
+	app.get('/price-alerts', function(req, res) {
 		if (req.session.user == null){
 			res.redirect('/');
 		}	else{
@@ -163,18 +184,14 @@ module.exports = function(app) {
 	});
 
 	app.delete('/alerts/:id', function(req, res) {
-		if (req.session.user == null){
-			res.redirect('/');
-		}	else{
-			AlertManager.deletePriceAlertById(req.params.id, (e, o) => {
-				if (e){
-					res.status(400).send('error-deleting-price-alert');
-				}	else{
-					PubSub.publish('UPDATE PRICE ALERT LIST');
-					res.redirect('/alerts');
-				}
-			});
-		}
+		AlertManager.deletePriceAlertById(req.params.id, (e, o) => {
+			if (e){
+				res.json({error: true, message: 'Error deleting alert'});
+			}	else{
+				res.json({error: false, message: 'Alert has been deleted'});
+				updatedPriceAlert();
+			}
+		});
 	});
 	
 /*
@@ -315,3 +332,15 @@ module.exports = function(app) {
 	app.get('*', function(req, res) { res.render('404', { title: 'Page Not Found'}); });
 
 };
+
+// let worker app know that there has been an update in alerts
+const updatedPriceAlert = () => {
+	request({
+		url: process.env.WORKER_APP_ORIGIN + '/alertsUpdate',
+		method: 'GET',
+		json: true
+	}, (err, res, body) => {
+
+	});
+}
+

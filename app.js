@@ -21,14 +21,14 @@ app.use(express.static(__dirname + '/app/public'));
 
 // build mongo database connection url //
 
-process.env.DB_HOST = process.env.DB_HOST || 'mongoDB'
+process.env.DB_HOST = process.env.DB_HOST || 'mongoDB';
 process.env.DB_PORT = process.env.DB_PORT || 27017;
 process.env.DB_NAME = process.env.DB_NAME || 'node-login';
 
-process.env.TELEGRAM_APP_SCHEME = 'http';
-process.env.TELEGRAM_APP_HOSTNAME = 'telegram-container';
-process.env.TELEGRAM_APP_PORT = '3001';
-process.env.TELEGRAM_APP_ORIGIN = process.env.TELEGRAM_APP_SCHEME + '://' + process.env.TELEGRAM_APP_HOSTNAME + ':' + process.env.TELEGRAM_APP_PORT;
+process.env.WORKER_APP_SCHEME = 'http';
+process.env.WORKER_APP_HOSTNAME = 'worker-container';
+process.env.WORKER_APP_PORT = 3002;
+process.env.WORKER_APP_ORIGIN = process.env.WORKER_APP_SCHEME + '://' + process.env.WORKER_APP_HOSTNAME + ':' + process.env.WORKER_APP_PORT;
 
 if (app.get('env') != 'live'){
 	process.env.DB_URL = 'mongodb://'+process.env.DB_HOST+':'+process.env.DB_PORT;
@@ -49,7 +49,7 @@ app.use(session({
 mongoUtil.connect( ( err, client ) => {
   if (err) console.log(err);
   require('./app/server/routes')(app);
-  require('./priceAlert');
+  require('./scripts/storeTradingPairs');
 } );
 
 http.createServer(app).listen(app.get('port'), function(){

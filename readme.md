@@ -20,7 +20,7 @@ Then run:
 ```shell
 $ docker-compose up -d
 ```
-And open browser to localhost:3000
+And open browser to <http://localhost>
 
 ## Deployment to AWS
 

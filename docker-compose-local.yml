@@ -1,0 +1,61 @@
+version: "3"
+networks:
+  crypto-alerts-network:
+
+services:
+  
+  mongoDB:
+    image: mongo
+    networks:
+      - crypto-alerts-network
+    ports:
+      - 27017:27017
+
+  telegram-container:
+    image: node:9-slim
+    networks:
+      - crypto-alerts-network
+    ports: 
+      - 3001:3001
+    working_dir: /usr/src/app
+    volumes:
+      - .:/usr/src/app
+    command: node telegramApp.js
+
+  worker-container:
+    image: node:9-slim
+    networks:
+      - crypto-alerts-network
+    ports: 
+      - 3002:3002
+    working_dir: /usr/src/app
+    volumes:
+      - .:/usr/src/app
+    depends_on:
+      - app-container
+    command: node workerApp.js
+
+  # The actual client application
+  app-container:
+    image: node:9-slim
+    working_dir: /usr/src/app
+    command: node app.js
+    depends_on:
+      - mongoDB
+    networks:
+      - crypto-alerts-network
+    #build: 
+    #  context: .
+    #  dockerfile: appDockerfile
+    # make sure the mounted volume path is of the app's directory
+    volumes:
+      - .:/usr/src/app
+    environment:
+      ENV_NAME: dev
+      DB_HOST: mongoDB
+      TELEGRAM_API_KEY: 942311713:AAHObtynOoLLrP2f6g_s3Xb85n0ASLfNeRs
+      BOT_NAME: '@CryptoTester67Bot'
+      # AWS_ACCESS_KEY_ID: 
+      # AWS_SECRET_ACCESS_KEY: 
+    ports:
+      - 80:80

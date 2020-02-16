@@ -1,23 +1,38 @@
-version: "3"
+version: "2"
 
 services:
   mongoDB:
     image: mongo
     ports:
       - 27017:27017
+    mem_limit: 200m
 
   telegram-container:
-    image: crypto-alert-images:latest
+    image: 263846239257.dkr.ecr.us-west-1.amazonaws.com/crypto-alert-images
     ports: 
       - 3001:3001
     working_dir: /usr/src/app
+    mem_limit: 200m
+
     environment:
       APP_STARTUP: 'telegramApp.js'
-    #command: node telegramApp.js
+      TELEGRAM_API_KEY: 942311713:AAHObtynOoLLrP2f6g_s3Xb85n0ASLfNeRs
+
+  worker-container:
+    image: 263846239257.dkr.ecr.us-west-1.amazonaws.com/crypto-alert-images
+    ports: 
+      - 3002:3002
+    working_dir: /usr/src/app
+    command: node workerApp.js
+    mem_limit: 200m
+    links:
+      - "telegram-container:telegram-container"
+
 
   # The actual client application
   app-container:
-    image: crypto-alert-images:latest
+    image: 263846239257.dkr.ecr.us-west-1.amazonaws.com/crypto-alert-images
+    mem_limit: 200m
     working_dir: /usr/src/app
     #command: node app.js
     depends_on:
@@ -25,6 +40,7 @@ services:
     links:
       - "mongoDB:mongoDB"
       - "telegram-container:telegram-container"
+      - "worker-container:worker-container"
 
     #build: 
     #  context: .
@@ -33,9 +49,8 @@ services:
     environment:
       ENV_NAME: dev
       DB_HOST: mongoDB
-      TELEGRAM_API_KEY: 942311713:AAHObtynOoLLrP2f6g_s3Xb85n0ASLfNeRs
-      BOT_NAME: '@CryptoTester67Bot'
       APP_STARTUP: 'app.js'
+      BOT_NAME: '@CryptoTester67Bot'
       # AWS_ACCESS_KEY_ID: 
       # AWS_SECRET_ACCESS_KEY: 
     ports:

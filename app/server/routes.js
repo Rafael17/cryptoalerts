@@ -340,7 +340,10 @@ const updatedPriceAlert = () => {
 		method: 'GET',
 		json: true
 	}, (err, res, body) => {
-
+		if(err) {
+			console.log(err);
+			return;
+		}
 	});
 }
 

@@ -85,6 +85,7 @@ const getAllAlerts = () => {
 		method: "GET",
 	}, (err, res, body) => {
 		if(err) {
+			console.log(err);
 			setTimeout(getAllAlerts, 3000);
 			return;
 		}

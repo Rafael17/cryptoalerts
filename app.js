@@ -6,11 +6,12 @@ var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var MongoStore = require('connect-mongo')(session);
 var mongoUtil = require('./app/server/modules/database');
+require('dotenv').config();
 
 var app = express();
 
 app.locals.pretty = true;
-app.set('port', process.env.PORT || 80);
+app.set('port', process.env.SERVER_PORT);
 app.set('views', __dirname + '/app/server/views');
 app.set('view engine', 'pug');
 app.use(cookieParser());
@@ -25,9 +26,6 @@ process.env.DB_HOST = process.env.DB_HOST || 'mongoDB';
 process.env.DB_PORT = process.env.DB_PORT || 27017;
 process.env.DB_NAME = process.env.DB_NAME || 'node-login';
 
-process.env.WORKER_APP_SCHEME = 'http';
-process.env.WORKER_APP_HOSTNAME = 'worker-container';
-process.env.WORKER_APP_PORT = 3002;
 process.env.WORKER_APP_ORIGIN = process.env.WORKER_APP_SCHEME + '://' + process.env.WORKER_APP_HOSTNAME + ':' + process.env.WORKER_APP_PORT;
 
 if (app.get('env') != 'live'){

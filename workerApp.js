@@ -2,21 +2,10 @@ const http 			= require('http');
 const express 		= require('express');
 const bodyParser 	= require('body-parser');
 const request 		= require('request');
+require('dotenv').config();
 
-
-process.env.SERVER_SCHEME = 'http'
-process.env.SERVER_HOSTNAME = 'app-container';
-process.env.SERVER_PORT = 80;
 process.env.SERVER_ORIGIN = process.env.SERVER_SCHEME + '://' + process.env.SERVER_HOSTNAME + ':' + process.env.SERVER_PORT;
-
-process.env.TELEGRAM_APP_SCHEME = 'http';
-process.env.TELEGRAM_APP_HOSTNAME = 'telegram-container';
-process.env.TELEGRAM_APP_PORT = 3001;
 process.env.TELEGRAM_APP_ORIGIN = process.env.TELEGRAM_APP_SCHEME + '://' + process.env.TELEGRAM_APP_HOSTNAME + ':' + process.env.TELEGRAM_APP_PORT;
-
-process.env.WORKER_APP_PORT = 3002;
-
-
 
 const app = express();
 app.set('port', process.env.WORKER_APP_PORT);

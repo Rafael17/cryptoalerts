@@ -5,21 +5,16 @@ const http = require('http');
 const request = require('request');
 const express = require('express');
 const bodyParser = require('body-parser');
+require('dotenv').config();
 
-process.env.SERVER_SCHEME = 'http'
-process.env.SERVER_HOSTNAME = 'app-container';
-process.env.SERVER_PORT = 80;
 process.env.SERVER_ORIGIN = process.env.SERVER_SCHEME + '://' + process.env.SERVER_HOSTNAME + ':' + process.env.SERVER_PORT;
-
-process.env.TELEGRAM_APP_PORT = 3001;
-
 
 const app = express();
 app.set('port', process.env.TELEGRAM_APP_PORT);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-require('dotenv').config();
+
 const bot = new Telegraf(process.env.TELEGRAM_API_KEY);
 
 const regexEverything = new RegExp(/.*/,'i');

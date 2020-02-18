@@ -23,10 +23,11 @@ services:
     ports: 
       - 3002:3002
     working_dir: /usr/src/app
-    command: node workerApp.js
     mem_limit: 200m
     links:
       - "telegram-container:telegram-container"
+    environment:
+      APP_STARTUP: 'workerApp.js'
 
 
   # The actual client application

@@ -1,6 +1,8 @@
 const mongo 		= require('mongodb');
 const MongoClient 	= require('mongodb').MongoClient;
 
+process.env.DB_URL 	= 'mongodb://'+process.env.DB_HOST+':'+process.env.DB_PORT;
+
 var db;
 Database = {
 	connect: (callback) =>{

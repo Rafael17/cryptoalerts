@@ -1,7 +1,7 @@
 
 const crypto 		= require('crypto');
 const moment 		= require('moment');
-const db 			= require('./database').getDb();
+const db 			= require('./../../../database').getDb();
 
 const accounts = db.collection('accounts');
 

@@ -5,7 +5,7 @@ var session = require('express-session');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var MongoStore = require('connect-mongo')(session);
-var mongoUtil = require('./app/server/modules/database');
+var mongoUtil = require('./database');
 require('dotenv').config();
 
 var app = express();

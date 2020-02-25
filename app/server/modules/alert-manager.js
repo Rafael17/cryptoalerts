@@ -1,8 +1,8 @@
 
 const crypto 		= require('crypto');
 const moment 		= require('moment');
-const db 			= require('./database').getDb();
-const mongo			= require('./database').getMongo();
+const db 			= require('./../../../database').getDb();
+const mongo			= require('./../../../database').getMongo();
 const PubSub 		= require('pubsub-js');
 
 const priceAlert 	= db.collection('priceAlert');

@@ -1,6 +1,6 @@
+require('dotenv').config();
 
 const AWS = require('aws-sdk');
-require('dotenv').config();
 
 // Set region
 AWS.config.update({

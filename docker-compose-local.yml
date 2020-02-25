@@ -11,17 +11,6 @@ services:
     ports:
       - 27017:27017
 
-  telegram-container:
-    image: node:9-slim
-    networks:
-      - crypto-alerts-network
-    ports: 
-      - 3001:3001
-    working_dir: /usr/src/app
-    volumes:
-      - .:/usr/src/app
-    command: node telegramApp.js
-
   worker-container:
     image: node:9-slim
     networks:
@@ -31,7 +20,22 @@ services:
     working_dir: /usr/src/app
     volumes:
       - .:/usr/src/app
-    command: node workerApp.js
+    depends_on:
+      - mongoDB
+    command: node worker-prices/worker.js
+
+  telegram-container:
+    image: node:9-slim
+    networks:
+      - crypto-alerts-network
+    ports: 
+      - 3001:3001
+    working_dir: /usr/src/app
+    volumes:
+      - .:/usr/src/app
+    depends_on:
+      - mongoDB
+    command: node worker-telegram/worker.js
 
   # The actual client application
   app-container:

@@ -1,6 +1,6 @@
 
-const db 			= require('./database').getDb();
-const mongo			= require('./database').getMongo();
+const db 			= require('./../../../database').getDb();
+const mongo			= require('./../../../database').getMongo();
 
 const tradingPairs 	= db.collection('tradingPairs');
 

@@ -33,3 +33,16 @@ ECS CLI environment to point to the desired region and ECS cluster
 ```shell
 ecs-cli configure --region us-west-1 --cluster crypto-alerts-cluster
 ```
+
+
+telegram-container cant find app-container HOSTNAME
+
+
+
+create load balancer
+create target group
+associate load balancer to target group
+add permissions to ECSrole 
+
+create SNS.publish('PRICE_ALERT_UPDATE'); topic
+

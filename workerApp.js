@@ -2,6 +2,7 @@ const http 			= require('http');
 const express 		= require('express');
 const bodyParser 	= require('body-parser');
 const request 		= require('request');
+const Telegraf 		= require('telegraf');
 require('dotenv').config();
 
 process.env.SERVER_ORIGIN = process.env.SERVER_SCHEME + '://' + process.env.SERVER_HOSTNAME + ':' + process.env.SERVER_PORT;
@@ -38,6 +39,8 @@ const checkAlerts = (currentPrice, pair, exchange) => {
 }
 
 const triggerAlert = (alert, direction) => {
+
+	/*
 	request({
 		url: process.env.SERVER_ORIGIN + '/alerts/' + alert._id,
 		method: 'DELETE',
@@ -64,20 +67,16 @@ const triggerAlert = (alert, direction) => {
 		});
 		getAllAlerts();
 	});
+	*/
 }
 
 const sendMessageToTelegram = (form) => {
-	console.log(form);
-	request({
-		url: process.env.TELEGRAM_APP_ORIGIN,
-		json: form,
-		method: 'POST',
-	}, (err, res, body) => {
-		if(err) console.log(err); return;
-		console.log(body);
-	});
+	const bot = new Telegraf(process.env.TELEGRAM_API_KEY);
+	const { telegramChatId, text } = form;
+	bot.telegram.sendMessage(telegramChatId, text);   
 }
 
+/*
 const getAllAlerts = () => {
 	request({ 
 		url: process.env.SERVER_ORIGIN + '/alerts',
@@ -93,6 +92,7 @@ const getAllAlerts = () => {
 	});
 }
 getAllAlerts();
+*/
 
 const binanceURL = 'https://api.binance.com/api/v3/ticker/price';
 const bitmexURL = 'https://www.bitmex.com/api/v1/trade/bucketed?binSize=1m&partial=true&count=100&reverse=true';

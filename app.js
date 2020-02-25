@@ -20,13 +20,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(require('stylus').middleware({ src: __dirname + '/app/public' }));
 app.use(express.static(__dirname + '/app/public'));
 
-// build mongo database connection url //
-
-process.env.DB_HOST = process.env.DB_HOST || 'mongoDB';
-process.env.DB_PORT = process.env.DB_PORT || 27017;
-process.env.DB_NAME = process.env.DB_NAME || 'node-login';
-
-process.env.WORKER_APP_ORIGIN = process.env.WORKER_APP_SCHEME + '://' + process.env.WORKER_APP_HOSTNAME + ':' + process.env.WORKER_APP_PORT;
 
 if (app.get('env') != 'live'){
 	process.env.DB_URL = 'mongodb://'+process.env.DB_HOST+':'+process.env.DB_PORT;

@@ -31,8 +31,6 @@ services:
     working_dir: /usr/src/app
     volumes:
       - .:/usr/src/app
-    depends_on:
-      - app-container
     command: node workerApp.js
 
   # The actual client application

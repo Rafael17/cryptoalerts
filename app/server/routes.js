@@ -6,6 +6,7 @@ const TradingPairs = require('./modules/tradingPairs');
 const AlertManager = require('./modules/alert-manager');
 const PubSub = require('pubsub-js');
 const request = require('request');
+const SNS = require('../../sns.js');
 
 module.exports = function(app) {
 
@@ -142,7 +143,7 @@ module.exports = function(app) {
 				if (e){
 					res.status(400).send('error-adding-price-alert');
 				}	else{
-					updatedPriceAlert()
+					SNS.publish('PRICE_ALERT_UPDATE');
 					res.status(200).send('ok');
 				}
 			});
@@ -189,7 +190,7 @@ module.exports = function(app) {
 				res.json({error: true, message: 'Error deleting alert'});
 			}	else{
 				res.json({error: false, message: 'Alert has been deleted'});
-				updatedPriceAlert();
+				SNS.publish('PRICE_ALERT_UPDATE');
 			}
 		});
 	});
@@ -333,17 +334,5 @@ module.exports = function(app) {
 
 };
 
-// let worker app know that there has been an update in alerts
-const updatedPriceAlert = () => {
-	request({
-		url: process.env.WORKER_APP_ORIGIN + '/alertsUpdate',
-		method: 'GET',
-		json: true
-	}, (err, res, body) => {
-		if(err) {
-			console.log(err);
-			return;
-		}
-	});
-}
+
 

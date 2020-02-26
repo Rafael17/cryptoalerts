@@ -98,8 +98,18 @@ requestLoop(1000, binanceURL, (data) => {
 });
 // Bitmex rate limit is 2 seconds per request
 requestLoop(3000, bitmexURL, (data) => {
-	data.forEach(({symbol, close}) => {
+	if(!Array.isArray(data)) {
+		return;
+	}
+	var uniqueSymbols = {};
+	const uniques = data.filter(({symbol}, pos, self)=> {
+		if(uniqueSymbols[symbol] == undefined) {
+			uniqueSymbols[symbol] = symbol;
+			return true;
+		} 
+		return false;
+	});
+	uniques.forEach(({symbol, close}) => {
 		checkAlerts(close,symbol,'Bitmex');
 	})
 });
-

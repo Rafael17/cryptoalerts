@@ -3,61 +3,66 @@ version: "2"
 services:
   mongoDB:
     image: mongo
+    mem_limit: 200m
     ports:
       - 27017:27017
-    mem_limit: 200m
 
-  telegram-container:
+  worker-prices:
+    #image: node:9-slim
     image: 263846239257.dkr.ecr.us-west-1.amazonaws.com/crypto-alert-images
-    ports: 
-      - 3001:3001
-    working_dir: /usr/src/app
     mem_limit: 200m
+    working_dir: /usr/src/app
+    #volumes:
+    #  - .:/usr/src/app
     depends_on:
       - mongoDB
     links:
       - "mongoDB:mongoDB"
-
+    command: node worker-prices/worker.js
     environment:
-      APP_STARTUP: 'telegramApp.js'
-      TELEGRAM_API_KEY: 942311713:AAHObtynOoLLrP2f6g_s3Xb85n0ASLfNeRs
+      - DB_HOST=mongoDB
+      - DB_PORT=27017
+      - DB_NAME=node_login
+      - APP_STARTUP=worker-prices/worker.js
 
-  worker-container:
+  worker-telegram:
+    #image: node:9-slim
     image: 263846239257.dkr.ecr.us-west-1.amazonaws.com/crypto-alert-images
-    ports: 
-      - 3002:3002
-    working_dir: /usr/src/app
     mem_limit: 200m
+    working_dir: /usr/src/app
+    #volumes:
+    #  - .:/usr/src/app
+    depends_on:
+      - mongoDB
+    links:
+      - "mongoDB:mongoDB"
+    command: node worker-telegram/worker.js
+    environment:
+      - DB_HOST=mongoDB
+      - DB_PORT=27017
+      - DB_NAME=node_login
+      - APP_STARTUP=worker-telegram/worker.js
+      - TELEGRAM_API_KEY=942311713:AAHObtynOoLLrP2f6g_s3Xb85n0ASLfNeRs
+
+  web-server-container:
+    #image: node:9-slim
+    image: 263846239257.dkr.ecr.us-west-1.amazonaws.com/crypto-alert-images
+    mem_limit: 200m
+    working_dir: /usr/src/app
+    command: node app.js
     depends_on:
       - mongoDB
     links:
       - "mongoDB:mongoDB"
     
-    environment:
-      APP_STARTUP: 'workerApp.js'
-
-
-  # The actual client application
-  app-container:
-    image: 263846239257.dkr.ecr.us-west-1.amazonaws.com/crypto-alert-images
-    mem_limit: 200m
-    working_dir: /usr/src/app
-    #command: node app.js
-    depends_on:
-      - mongoDB
-    links:
-      - "mongoDB:mongoDB"
-
-    #build: 
-    #  context: .
-    #  dockerfile: appDockerfile
-    # make sure the mounted volume path is of the app's directory
-    environment:
-      ENV_NAME: dev
-      DB_HOST: mongoDB
-      APP_STARTUP: 'app.js'
-      BOT_NAME: '@CryptoTester67Bot'
-      # AWS_ACCESS_KEY_ID: 
-      # AWS_SECRET_ACCESS_KEY: 
+    #volumes:
+    #  - .:/usr/src/app
     ports:
       - 80:80
+    environment: 
+      - BOT_NAME=@CryptoTester67Bot
+      - DB_HOST=mongoDB
+      - DB_PORT=27017
+      - DB_NAME=node_login
+      - SERVER_PORT=80
+      - APP_STARTUP=app.js

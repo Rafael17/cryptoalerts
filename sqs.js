@@ -11,10 +11,17 @@ AWS.config = new AWS.Config({
 });
 */
 AWS.config.update({
-    accessKeyId: process.env.AWS_KEY,
-    secretAccessKey: process.env.AWS_SECRET,
     region: process.env.AWS_REGION
 });
+
+if(process.env.AWS_KEY) {
+    AWS.config.update({
+        accessKeyId: process.env.AWS_KEY,
+        secretAccessKey: process.env.AWS_SECRET
+    });
+} else {
+    AWS.config.credentials = new AWS.EC2MetadataCredentials();
+}
 
 // Create an SQS service object
 const sqs = new AWS.SQS({apiVersion: '2012-11-05'});
@@ -85,7 +92,5 @@ const SQS = {
         });
     }
 }
-
-SQS.receive('PRICE_ALERT_UPDATED');
 
 module.exports = SQS;

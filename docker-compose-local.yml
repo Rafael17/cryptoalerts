@@ -19,12 +19,8 @@ services:
     links:
       - "mongoDB:mongoDB"
     command: node worker-prices/worker.js
-    environment:
-      - DB_HOST=mongoDB
-      - DB_PORT=27017
-      - DB_NAME=node_login
-      - AWS_REGION=us-west-1
-      - TELEGRAM_API_KEY=942311713:AAHObtynOoLLrP2f6g_s3Xb85n0ASLfNeRs
+    env_file:
+      - default.env
 
   worker-telegram:
     image: node:9-slim
@@ -36,12 +32,8 @@ services:
     links:
       - "mongoDB:mongoDB"
     command: node worker-telegram/worker.js
-    environment:
-      - DB_HOST=mongoDB
-      - DB_PORT=27017
-      - DB_NAME=node_login
-      - TELEGRAM_API_KEY=942311713:AAHObtynOoLLrP2f6g_s3Xb85n0ASLfNeRs
-      - AWS_REGION=us-west-1
+    env_file:
+      - default.env
 
   # The actual client application
   web-server-container:
@@ -58,11 +50,5 @@ services:
       - .:/usr/src/app
     ports:
       - 80:80
-    environment: 
-      - BOT_NAME=@CryptoTester67Bot
-      - DB_HOST=mongoDB
-      - DB_PORT=27017
-      - DB_NAME=node_login
-      - SERVER_PORT=80
-      - AWS_REGION=us-west-1
-      - TELEGRAM_API_KEY=942311713:AAHObtynOoLLrP2f6g_s3Xb85n0ASLfNeRs
+    env_file:
+      - default.env

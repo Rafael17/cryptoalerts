@@ -27,7 +27,7 @@ if(process.env.AWS_KEY) {
 const sqs = new AWS.SQS({apiVersion: '2012-11-05'});
 
 const queueURLs = {
-    PRICE_ALERT_UPDATED: 'https://sqs.us-west-1.amazonaws.com/263846239257/CryptoAlerts-priceAlertUpdate'
+    PRICE_ALERT_UPDATED: process.env.SQS_URL_FOR_PRICE_ALERT_URL
 }
 
 const SQS = {

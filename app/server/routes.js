@@ -1,5 +1,4 @@
 
-const CT = require('./modules/country-list');
 const AcccountManager = require('./modules/account-manager');
 const EM = require('./modules/email-dispatcher');
 const TradingPairs = require('./modules/tradingPairs');
@@ -61,29 +60,7 @@ module.exports = function(app) {
 /*
 	Users
 */
-	app.get('/users/', function(req, res) {
-
-		const { telegramPasscode, telegramChatId } = req.query;
-		if(telegramPasscode && telegramChatId) {
-			AcccountManager.getUserByTelegramChatId(telegramChatId * 1, (error, object) => {
-				if(object == null) {
-					AcccountManager.addTelegramId(telegramPasscode, telegramChatId * 1, (error, object) => {
-						if(object != null && !object.lastErrorObject.updatedExisting) {
-							res.json({error: true, message: 'Wrong passcode! Login to crypto alerts to view your telegram passcode', result: null});
-						} else {
-							res.json({error: false, message: 'account-linked', result: object});
-						}
-					});
-				}
-				else {
-					res.json({error: false, message: null, result: object});
-				}
-			})
-		} 
-	});
-
 	app.get('/users/:id/', function(req, res) {
-		/*
 		if (req.session.user == null){
 			res.redirect('/');
 			return;
@@ -91,7 +68,6 @@ module.exports = function(app) {
 			res.redirect('/');
 			return;
 		} 
-		*/
 		if(req.query.filters == 'telegramChatId') {
 			AcccountManager.getUser(req.session.user._id, (error, object) => {
 				if(error)
@@ -106,20 +82,6 @@ module.exports = function(app) {
 			});
 			return;
 		}
-		AcccountManager.getUser(req.params.id, (error, object) => {
-			if(error) {
-				res.json(error);
-				return;
-			}
-			res.json(object);
-		});
-
-	});
-
-	app.get('/users/:id/alerts', function(req, res) {
-		AlertManager.getPriceAlerts(req.params.id, (e, alerts) => {
-			res.json(alerts);
-		});
 	});
 
 /*
@@ -151,13 +113,17 @@ module.exports = function(app) {
 	});
 
 	app.get('/alerts', function(req, res) {
-		AlertManager.getAllPriceAlerts((e, alerts) => {
-			if(e) {
-				res.json(e);
-				return;
-			}
-			res.json(alerts);
-		});
+		if (req.session.user == null){
+			res.redirect('/');
+		}	else{
+			AlertManager.getAllPriceAlerts((e, alerts) => {
+				if(e) {
+					res.json(e);
+					return;
+				}
+				res.json(alerts);
+			});
+		}
 	});
 
 	app.get('/price-alerts', function(req, res) {
@@ -204,7 +170,6 @@ module.exports = function(app) {
 		}	else{
 			res.render('home', {
 				title : 'Control Panel',
-				countries : CT,
 				udata : req.session.user
 			});
 		}
@@ -218,8 +183,7 @@ module.exports = function(app) {
 				id		: req.session.user._id,
 				name	: req.body['name'],
 				email	: req.body['email'],
-				pass	: req.body['pass'],
-				country	: req.body['country']
+				pass	: req.body['pass']
 			}, function(e, o){
 				if (e){
 					res.status(400).send('error-updating-account');
@@ -236,7 +200,7 @@ module.exports = function(app) {
 */
 
 	app.get('/signup', function(req, res) {
-		res.render('signup', {  title: 'Signup', countries : CT });
+		res.render('signup', {  title: 'Signup' });
 	});
 	
 	app.post('/signup', function(req, res){
@@ -244,8 +208,7 @@ module.exports = function(app) {
 			name 	: req.body['name'],
 			email 	: req.body['email'],
 			user 	: req.body['user'],
-			pass	: req.body['pass'],
-			country : req.body['country']
+			pass	: req.body['pass']
 		}, function(e){
 			if (e){
 				res.status(400).send(e);

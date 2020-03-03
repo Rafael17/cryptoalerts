@@ -89,11 +89,11 @@ exports.addNewAccount = function(newData, callback)
 {
 	accounts.findOne({user:newData.user}, function(e, o) {
 		if (o){
-			callback('username-taken');
+			callback('username taken');
 		}	else{
 			accounts.findOne({email:newData.email}, function(e, o) {
 				if (o){
-					callback('email-taken');
+					callback('email taken');
 				}	else{
 					saltAndHash(newData.pass, function(hash){
 						newData.pass = hash;

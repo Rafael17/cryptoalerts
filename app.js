@@ -14,7 +14,7 @@ app.set('port', process.env.SERVER_PORT);
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static(__dirname + '/dist'));
+//app.use(express.static(__dirname + '/dist'));
 
 
 if (app.get('env') != 'live'){

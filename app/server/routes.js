@@ -219,7 +219,7 @@ module.exports = function(app) {
 	
 	app.get('/api/health-check', function(req, res) { res.status(200).json({success: true}); });
 	
-	app.get('/api/*', function(req, res) { res.status(404).json({error: true, message: 'Page not found'}); });
+	//app.get('/*', function(req, res) { res.status(404).json({error: true, message: 'Page not found'}); });
 	app.get('/*', function(req, res) { 
 		res.sendFile(path.join(__dirname, '../../dist', 'index.html'));
 	});

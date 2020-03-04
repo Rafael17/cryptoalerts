@@ -1,15 +1,14 @@
 
-var http = require('http');
-var express = require('express');
-var session = require('express-session');
-var bodyParser = require('body-parser');
-var cookieParser = require('cookie-parser');
-var MongoStore = require('connect-mongo')(session);
-var mongoUtil = require('./database');
+const http = require('http');
+const express = require('express');
+const session = require('express-session');
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
+const MongoStore = require('connect-mongo')(session);
+const mongoUtil = require('./database');
 require('dotenv').config();
 
-var app = express();
-
+const app = express();
 app.locals.pretty = true;
 app.set('port', process.env.SERVER_PORT);
 app.use(cookieParser());

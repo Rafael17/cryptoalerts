@@ -10,10 +10,10 @@ const path = require('path');
 
 module.exports = function(app) {
 
-/*
-	login & logout
-*/
-
+	/******************\
+		login/logout
+	\*******************/
+	/*
 	app.get('/api/', function(req, res){
 	// check if the user has an auto login key saved in a cookie //
 		if (req.cookies.login == undefined){
@@ -32,17 +32,16 @@ module.exports = function(app) {
 			});
 		}
 	});
-	
+	*/
 	app.post('/api/', function(req, res){
-		console.log(req.body);
 		AcccountManager.manualLogin(req.body['user'], req.body['pass'], function(e, o){
 			if (!o){
 				res.status(400).json({error:true, message: e});
-			}	else{
+			} else {
 				req.session.user = o;
 				if (req.body['remember-me'] == 'false'){
 					res.status(200).json({success: true, userData:o});
-				}	else{
+				} else {
 					AcccountManager.generateLoginKey(o.user, req.ip, function(key){
 						res.cookie('login', key, { maxAge: 900000 });
 						res.status(200).json({success: true, userData:o});
@@ -54,14 +53,14 @@ module.exports = function(app) {
 
 	app.post('/api/logout', function(req, res){
 		res.clearCookie('login');
-		req.session.destroy(function(e){ res.status(200).send('ok'); });
+		req.session.destroy(function(e){ res.status(200).json({success: true}); });
 	})
 
 
 
-/*
-	Users
-*/
+	/******************\
+		users
+	\*******************/
 	app.get('/api/users/:id/', function(req, res) {
 		if (req.session.user == null){
 			res.redirect('/');
@@ -86,15 +85,14 @@ module.exports = function(app) {
 		}
 	});
 
-/*
-	price alerts
+	/******************\
+		price alerts
+	\*******************/
 
-*/
 	app.post('/api/alerts', function(req, res) {
 		if (req.session.user == null){
 			res.redirect('/');
-		}	else{
-
+		} else {
 			AlertManager.addPriceAlert({
 				userId	: req.session.user._id,
 				exchange: req.body['exchange'],
@@ -105,28 +103,14 @@ module.exports = function(app) {
 			}, (e, o) => {
 				if (e){
 					res.status(400).json({error: true, message: 'error-adding-price-alert'});
-				}	else {
+				} else {
 					SQS.send('PRICE_ALERT_UPDATED');
 					res.status(200).json({success: true});
 				}
 			});
 		}
 	});
-
-	app.get('/api/alerts', function(req, res) {
-		if (req.session.user == null){
-			res.redirect('/');
-		}	else{
-			AlertManager.getAllPriceAlerts((e, alerts) => {
-				if(e) {
-					res.json(e);
-					return;
-				}
-				res.json(alerts);
-			});
-		}
-	});
-
+	
 	app.get('/api/price-alerts', function(req, res) {
 		if (req.session.user == null){
 			res.redirect('/');
@@ -165,51 +149,12 @@ module.exports = function(app) {
 			}
 		});
 	});
-	
-/*
-	control panel
-*/
-	app.get('/api/home', function(req, res) {
-		if (req.session.user == null){
-			res.redirect('/');
-		}	else{
-			res.render('home', {
-				title : 'Control Panel',
-				udata : req.session.user
-			});
-		}
-	});
-	
-	app.post('/api/home', function(req, res){
-		if (req.session.user == null){
-			res.redirect('/');
-		}	else{
-			AcccountManager.updateAccount({
-				id		: req.session.user._id,
-				name	: req.body['name'],
-				email	: req.body['email'],
-				pass	: req.body['pass']
-			}, function(e, o){
-				if (e){
-					res.status(400).send('error-updating-account');
-				}	else{
-					req.session.user = o.value;
-					res.status(200).send('ok');
-				}
-			});
-		}
-	});
 
-/*
-	new accounts
-*/
-
-	app.get('/api/signup', function(req, res) {
-		res.render('signup', {  title: 'Signup' });
-	});
+	/******************\
+		new accounts
+	\*******************/
 	
 	app.post('/api/signup', function(req, res) {
-
 		AcccountManager.addNewAccount({
 			company	: req.body['company'],
 			email 	: req.body['email'],
@@ -224,9 +169,9 @@ module.exports = function(app) {
 		});
 	});
 
-/*
-	password reset
-*/
+	/******************\
+		password reset
+	\*******************/
 
 	app.post('/api/lost-password', function(req, res){
 		let email = req.body['email'];
@@ -261,7 +206,7 @@ module.exports = function(app) {
 	app.post('/api/reset-password', function(req, res) {
 		let newPass = req.body['pass'];
 		let passKey = req.session.passKey;
-	// destory the session immediately after retrieving the stored passkey //
+		// destory the session immediately after retrieving the stored passkey
 		req.session.destroy();
 		AcccountManager.updatePassword(passKey, newPass, function(e, o){
 			if (o){
@@ -272,34 +217,8 @@ module.exports = function(app) {
 		})
 	});
 	
-/*
-	view, delete & reset accounts
-*/
 	
-	app.get('/api/print', function(req, res) {
-		AcccountManager.getAllRecords( function(e, accounts){
-			res.render('print', { title : 'Account List', accts : accounts });
-		})
-	});
-	
-	app.post('/api/delete', function(req, res){
-		AcccountManager.deleteAccount(req.session.user._id, function(e, obj){
-			if (!e){
-				res.clearCookie('login');
-				req.session.destroy(function(e){ res.status(200).send('ok'); });
-			}	else{
-				res.status(400).send('record not found');
-			}
-		});
-	});
-	
-	app.get('/api/reset', function(req, res) {
-		AcccountManager.deleteAllAccounts(function(){
-			res.redirect('/print');
-		});
-	});
-	
-	app.get('/api/*', function(req, res) { res.render('404', { title: 'Page Not Found'}); });
+	app.get('/api/*', function(req, res) { res.status(404).json({error: true, message: 'Page not found'}); });
 	app.get('/*', function(req, res) { 
 		res.sendFile(path.join(__dirname, '../../dist', 'index.html'));
 	});

@@ -60,3 +60,4 @@ services:
       - default.env
     environment: 
       - APP_STARTUP=app.js
+      - APP_STARTUP2=false

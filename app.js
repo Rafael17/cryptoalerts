@@ -35,6 +35,7 @@ app.use(session({
 
 mongoUtil.connect( ( err, client ) => {
 	if (err) console.log(err);
+	require('./scripts/downloadFrontEnd');
 	require('./app/server/routes')(app);
 	require('./scripts/storeTradingPairs');
 } );

@@ -13,9 +13,9 @@ if(process.env.AWS_KEY) {
     AWS.config.credentials = new AWS.EC2MetadataCredentials();
 }
 
-const client = new AWS.SecretsManager({region: region});
-
 getSecret = (secretName) => {
+
+    const client = new AWS.SecretsManager({region: region});
 
     const promise = new Promise((resolve, reject) => {
         client.getSecretValue({SecretId: secretName}, function(err, data) {

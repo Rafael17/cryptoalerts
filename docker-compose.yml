@@ -1,63 +1,38 @@
 version: "2"
 
 services:
-  mongoDB:
-    image: mongo
-    mem_limit: 200m
-    ports:
-      - 27017:27017
 
   worker-prices:
-    #image: node:9-slim
     image: 263846239257.dkr.ecr.us-west-1.amazonaws.com/crypto-alert-images
     mem_limit: 200m
     working_dir: /usr/src/app
-    #volumes:
-    #  - .:/usr/src/app
-    depends_on:
-      - mongoDB
-    links:
-      - "mongoDB:mongoDB"
     command: node worker-prices/worker.js
     env_file:
       - default.env
     environment:
       - APP_STARTUP=worker-prices/worker.js
+      - ENVIROMENT=prod
 
   worker-telegram:
-    #image: node:9-slim
     image: 263846239257.dkr.ecr.us-west-1.amazonaws.com/crypto-alert-images
     mem_limit: 200m
     working_dir: /usr/src/app
-    #volumes:
-    #  - .:/usr/src/app
-    depends_on:
-      - mongoDB
-    links:
-      - "mongoDB:mongoDB"
     command: node worker-telegram/worker.js
     env_file:
       - default.env
     environment:
       - APP_STARTUP=worker-telegram/worker.js
+      - ENVIROMENT=prod
 
   web-server-container:
-    #image: node:9-slim
     image: 263846239257.dkr.ecr.us-west-1.amazonaws.com/crypto-alert-images
     mem_limit: 200m
     working_dir: /usr/src/app
     command: node app.js
-    depends_on:
-      - mongoDB
-    links:
-      - "mongoDB:mongoDB"
-    
-    #volumes:
-    #  - .:/usr/src/app
     ports:
       - 80:80
     env_file:
       - default.env
     environment: 
       - APP_STARTUP=app.js
-      - APP_STARTUP2=false
+      - ENVIROMENT=prod

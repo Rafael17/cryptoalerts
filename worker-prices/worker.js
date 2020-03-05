@@ -2,11 +2,9 @@ require('dotenv').config();
 
 const request 		= require('request');
 const Telegraf 		= require('telegraf');
-
 const mongoUtil 	= require('./../database');
 const SQS 			= require('./../sqs');
-
-const getSecret = require('./../scripts/getSecret');
+const getSecret 	= require('./../scripts/getSecret');
 
 let PriceAlertMng 	= null;
 

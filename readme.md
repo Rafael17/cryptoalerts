@@ -11,18 +11,28 @@ Set price alerts for cryptocurrency pairs and receive Telegram notifications
 * Binance
 * Bitmex
 
+## Architecture
+Fully dockerized application running on a EC2 server with an Application Load Balancer and a message broker. Thus the application is loosely coupled and ready for scaling when needed.
+
+### Containers
+1. Web Server (API consumed by Frontend React <https://github.com/Rafael17/cryptoalerts-frontend>)
+2. Telegram Worker (polling Telegram API)
+3. Price Alert Worker (fetches exchange price data and compares it to user registered alerts)
+4. (local dev only) MongoDB Server
+
 ## Installation
 1. Rename .env-sample to .env and store AWS credentials
-2. Create a bot in Telegram using BotFather from your mobile phone. Create a new secret called prod/telegram in AWS Secrets Manager and add key/value pairs `TELEGRAM_API_KEY` and `BOT_NAME` from BotFather.
+2. Create a bot in Telegram using BotFather from your mobile phone. Create a new secret called `prod/telegram` in AWS Secrets Manager and add key/value pairs `TELEGRAM_API_KEY` and `BOT_NAME` from BotFather.
 3. Store the CryptoAlerts FrontEnd React build dist in an S3 bucket and update default.env `S3_FRONT_END_BUCKET`
 4. Create an SQS queue and update default.env `SQS_URL_FOR_PRICE_ALERT_URL`
-5. Install docker: <https://docs.docker.com/get-docker/>
+5. Create a new secret called `prod/mongoDB` in Secret Manager and add your `DB_CONNECTION_STRING` 
+6. Install docker: <https://docs.docker.com/get-docker/>
 
 Then run: 
 ```shell
 $ docker-compose -f docker-compose-local.yml up -d
 ```
-And open browser to <http://localhost>
+And open browser to <http://localhost:80>
 
 
 

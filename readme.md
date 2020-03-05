@@ -2,7 +2,7 @@
 Set price alerts for cryptocurrency pairs and receive Telegram notifications
 
 ## Technologies
-* AWS
+* AWS (SQS, SecretManager, EC2, ECS, ELB, Target Groups, IAM roles, etc)
 * MongoDB
 * Nodejs
 * Docker
@@ -12,37 +12,18 @@ Set price alerts for cryptocurrency pairs and receive Telegram notifications
 * Bitmex
 
 ## Installation
-Create a bot in Telegram using BotFather from your mobile. Write the resulting Token and Bot username in a .env file, use .env-sample for guidence. 
-
-Install docker: <https://docs.docker.com/get-docker/>
+1. Rename .env-sample to .env and store AWS credentials
+2. Create a bot in Telegram using BotFather from your mobile phone. Create a new secret called prod/telegram in AWS Secrets Manager and with the resulting Token and Bot Username from BotFather.
+3. Store the CryptoAlerts FrontEnd React build dist in an S3 bucket and update default.env
+4. Create an SQS queue and update default.env
+5. Install docker: <https://docs.docker.com/get-docker/>
 
 Then run: 
 ```shell
-$ docker-compose up -d
+$ docker-compose -f docker-compose-local.yml up -d
 ```
 And open browser to <http://localhost>
 
-## Deployment to AWS
-
-Install ecs-cli
-```shell
-sudo curl -o /usr/local/bin/ecs-cli https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-darwin-amd64-latest
-sudo chmod +x /usr/local/bin/ecs-cli
-```
-ECS CLI environment to point to the desired region and ECS cluster
-```shell
-ecs-cli configure --region us-west-1 --cluster crypto-alerts-cluster
-```
 
 
-telegram-container cant find app-container HOSTNAME
-
-
-
-create load balancer
-create target group
-associate load balancer to target group
-add permissions to ECSrole 
-
-create SNS.publish('PRICE_ALERT_UPDATE'); topic
 

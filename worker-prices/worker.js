@@ -6,13 +6,21 @@ const Telegraf 		= require('telegraf');
 const mongoUtil 	= require('./../database');
 const SQS 			= require('./../sqs');
 
-var PriceAlertMng 	= null;
+const getSecret = require('./../scripts/getSecret');
+
+let PriceAlertMng 	= null;
+
+const promise = getSecret('prod/telegram').then(({ TELEGRAM_API_KEY, BOT_NAME }) => {
+	process.env.TELEGRAM_API_KEY = TELEGRAM_API_KEY;
+	process.env.BOT_NAME = BOT_NAME;
+});
 
 mongoUtil.connect( ( err, client ) => {
 	if (err) console.log(err);
 	PriceAlertMng	= require('./priceAlertManager');
 	getAllAlerts();
 });
+
 
 const sqsReceiveMessage = (message) => {
     console.log('Processing message: ', message);

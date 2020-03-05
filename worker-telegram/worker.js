@@ -5,6 +5,7 @@ const Markup        = require('telegraf/markup');
 const request       = require('request');
 const bodyParser    = require('body-parser');
 const mongoUtil     = require('./../database');
+const getSecret     = require('./../scripts/getSecret');
 
 var DatabaseMng;
 
@@ -13,29 +14,45 @@ mongoUtil.connect( ( err, client ) => {
   DatabaseMng = require('./databaseManager');
 } );
 
-const bot = new Telegraf(process.env.TELEGRAM_API_KEY);
 
-const regexEverything = new RegExp(/.*/,'i');
-bot.hears(regexEverything, (ctx) => {
-    const telegramChatId = ctx.message.from.id;
-    const input = ctx.match[0];
-    var returnMessage = [];
 
-    DatabaseMng.getUserByTelegramChatId(telegramChatId * 1, (error, object) => {
-        if(object == null) {
-            DatabaseMng.addTelegramId(input, telegramChatId * 1, (error, object) => {
-                if(object != null && !object.lastErrorObject.updatedExisting) {
-                    ctx.reply('Wrong passcode! Login to crypto alerts to view your telegram passcode');
-                } else {
-                    ctx.reply("Account has been linked! Now you will receive price alerts in this channel");
-                }
-            });
-        }
-        else {
-            ctx.reply(processInput(input));
-        }
-    });
+
+const promise = getSecret('prod/telegram').then(({ TELEGRAM_API_KEY, BOT_NAME} ) => {
+    process.env.TELEGRAM_API_KEY = TELEGRAM_API_KEY;
+    process.env.BOT_NAME = BOT_NAME;
+
+    runBot()
 });
+
+
+const runBot = () => {
+    const bot = new Telegraf(process.env.TELEGRAM_API_KEY);
+    
+    bot.startPolling();
+
+    const regexEverything = new RegExp(/.*/,'i');
+    
+    bot.hears(regexEverything, (ctx) => {
+        const telegramChatId = ctx.message.from.id;
+        const input = ctx.match[0];
+        var returnMessage = [];
+
+        DatabaseMng.getUserByTelegramChatId(telegramChatId * 1, (error, object) => {
+            if(object == null) {
+                DatabaseMng.addTelegramId(input, telegramChatId * 1, (error, object) => {
+                    if(object != null && !object.lastErrorObject.updatedExisting) {
+                        ctx.reply('Wrong passcode! Login to crypto alerts to view your telegram passcode');
+                    } else {
+                        ctx.reply("Account has been linked! Now you will receive price alerts in this channel");
+                    }
+                });
+            }
+            else {
+                ctx.reply(processInput(input));
+            }
+        });
+    });
+};
 
 const processInput = (input) => {
     switch(input) {
@@ -62,7 +79,7 @@ const processInput = (input) => {
     }
 }
 
-bot.startPolling();
+
 
 
 

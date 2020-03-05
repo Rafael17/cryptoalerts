@@ -4,7 +4,7 @@ const AWS = require('aws-sdk');
 const fs = require('fs');
 
 const filePath = './dist/';
-const bucketName = 'cryptoalertsfrontend';
+const bucketName = process.env.S3_FRONT_END_BUCKET;
 
 AWS.config.update({
     region: process.env.AWS_REGION

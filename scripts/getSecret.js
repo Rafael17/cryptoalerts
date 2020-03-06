@@ -18,7 +18,7 @@ const getSecret = (name, keys) => {
     const promise = new Promise((resolve, reject) => {
         if(process.env.ENVIRONMENT == 'prod') {
 
-            client.getSecretValue({SecretId: secretName}, function(err, data) {
+            client.getSecretValue({SecretId: name}, function(err, data) {
                 let secret;
                 if (err) {
                     reject(err);
@@ -27,8 +27,8 @@ const getSecret = (name, keys) => {
                     if ('SecretString' in data) {
                         secret =JSON.parse(data.SecretString);
                         keys.map(k => {
-                            if(e[k]) {
-                                process.env[k] = e[k];    
+                            if(secret[k]) {
+                                process.env[k] = secret[k];    
                             } else {
                                 console.log(k + " is not set in " + name);
                             }

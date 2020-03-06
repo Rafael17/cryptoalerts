@@ -7,12 +7,6 @@ const PubSub = require('pubsub-js');
 const request = require('request');
 const SQS = require('../../sqs.js');
 const path = require('path');
-const getSecret = require('./../../scripts/getSecret');
-
-const promise = getSecret('prod/telegram').then(({ TELEGRAM_API_KEY, BOT_NAME } ) => {
-	process.env.TELEGRAM_API_KEY = TELEGRAM_API_KEY;
-	process.env.BOT_NAME = BOT_NAME;
-});
 
 module.exports = function(app) {
 

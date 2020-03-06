@@ -23,6 +23,7 @@ services:
       - default.env
     environment:
       - APP_STARTUP=worker-prices/worker.js
+      - ENVIRONMENT=prod
 
   worker-telegram:
     image: 263846239257.dkr.ecr.us-west-1.amazonaws.com/crypto-alert-images
@@ -37,6 +38,7 @@ services:
       - default.env
     environment:
       - APP_STARTUP=worker-telegram/worker.js
+      - ENVIRONMENT=prod
 
   web-server-container:
     image: 263846239257.dkr.ecr.us-west-1.amazonaws.com/crypto-alert-images
@@ -53,3 +55,4 @@ services:
       - default.env
     environment: 
       - APP_STARTUP=app.js
+      - ENVIRONMENT=prod

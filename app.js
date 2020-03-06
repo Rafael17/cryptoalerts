@@ -6,8 +6,9 @@ const cookieParser 	= require('cookie-parser');
 const MongoStore 	= require('connect-mongo')(session);
 const mongoUtil 	= require('./database');
 const getSecret 	= require('./scripts/getSecret');
-
 require('dotenv').config();
+
+getSecret('prod/telegram', ['TELEGRAM_API_KEY','BOT_NAME']);
 
 const app = express();
 app.locals.pretty = true;

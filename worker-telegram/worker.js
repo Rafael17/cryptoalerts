@@ -15,19 +15,8 @@ mongoUtil.connect( ( err, client ) => {
 } );
 
 
-
-
-const promise = getSecret('prod/telegram').then(({ TELEGRAM_API_KEY, BOT_NAME} ) => {
-    process.env.TELEGRAM_API_KEY = TELEGRAM_API_KEY;
-    process.env.BOT_NAME = BOT_NAME;
-
-    runBot()
-});
-
-
 const runBot = () => {
     const bot = new Telegraf(process.env.TELEGRAM_API_KEY);
-    
     bot.startPolling();
 
     const regexEverything = new RegExp(/.*/,'i');
@@ -80,7 +69,7 @@ const processInput = (input) => {
 }
 
 
-
+getSecret('prod/telegram', ['TELEGRAM_API_KEY','BOT_NAME']).then(runBot);
 
 
 

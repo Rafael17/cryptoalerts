@@ -8,10 +8,7 @@ const getSecret 	= require('./../scripts/getSecret');
 
 let PriceAlertMng 	= null;
 
-const promise = getSecret('prod/telegram').then(({ TELEGRAM_API_KEY, BOT_NAME }) => {
-	process.env.TELEGRAM_API_KEY = TELEGRAM_API_KEY;
-	process.env.BOT_NAME = BOT_NAME;
-});
+getSecret('prod/telegram', ['TELEGRAM_API_KEY','BOT_NAME']);
 
 mongoUtil.connect( ( err, client ) => {
 	if (err) console.log(err);

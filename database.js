@@ -4,6 +4,8 @@ const MongoClient 	= require('mongodb').MongoClient;
 
 const getConnectionString = () => {
 	const promise = new Promise((resolve, reject) => {
+		// this is an optional setup to use a separate mongodb service and pull connection string from Secret Manager
+		/*
 		if (process.env.ENVIROMENT === 'prod') {
 			getSecret('prod/mongoDB')
 			.then(({ DB_CONNECTION_STRING }) => DB_CONNECTION_STRING )
@@ -11,6 +13,8 @@ const getConnectionString = () => {
 		} else {
 			resolve(process.env.DB_CONNECTION_STRING);
 		}
+		*/
+		resolve(process.env.DB_CONNECTION_STRING);
 	})
 	return promise;
 }

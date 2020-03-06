@@ -13,7 +13,16 @@ PriceAlertManager = {
 		priceAlert.find({}).toArray(
 			(e, res) => {
 				if (e) callback(e)
-				else callback(null, res)
+				else {
+					const exchangeData = res.reduce( (acc, value) => {
+						if(acc[value.exchange] === undefined) {
+							acc[value.exchange] = [];
+						}
+						acc[value.exchange].push(value);
+						return acc;
+					}, {})
+					callback(null, exchangeData);
+				}
 		});
 	},
 	getUser: (id, callback) => {

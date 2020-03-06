@@ -16,13 +16,15 @@ mongoUtil.connect( ( err, client ) => {
 	getAllAlerts();
 });
 
-
 const sqsReceiveMessage = (message) => {
-    console.log('Processing message: ', message);
+    console.log('Processing message: ', message.MessageId);
     getAllAlerts();
 };
-SQS.longPoll('PRICE_ALERT_UPDATED', sqsReceiveMessage).start();
 
+getSecret('prod/sqs-price-alert-update', ['SQS_URL_FOR_PRICE_UPDATES'])
+.then(() => {
+	SQS.longPoll(process.env.SQS_URL_FOR_PRICE_UPDATES, sqsReceiveMessage).start();
+})
 
 var alerts = [];
 

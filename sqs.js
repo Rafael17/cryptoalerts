@@ -3,13 +3,6 @@ require('dotenv').config();
 const AWS           = require('aws-sdk');
 const { Consumer }    = require('sqs-consumer');
 
-/*
-const credentials = new AWS.SharedIniFileCredentials();
-AWS.config = new AWS.Config({
-    credentials: credentials, 
-    region: process.env.AWS_REGION
-});
-*/
 AWS.config.update({
     region: process.env.AWS_REGION
 });
@@ -23,19 +16,14 @@ if(process.env.AWS_KEY) {
     AWS.config.credentials = new AWS.EC2MetadataCredentials();
 }
 
-// Create an SQS service object
 const sqs = new AWS.SQS({apiVersion: '2012-11-05'});
 
-const queueURLs = {
-    PRICE_ALERT_UPDATED: process.env.SQS_URL_FOR_PRICE_ALERT_URL
-}
-
 const SQS = {
-    send: (name) => {
+    send: (url) => {
         sqs.sendMessage({
             DelaySeconds: 0,
             MessageBody: 'PRICE_ALERT_UPDATED',
-            QueueUrl: queueURLs[name]
+            QueueUrl: url
         }, (err, data) => {
             if (err) {
                 console.log("Error", err);
@@ -45,9 +33,9 @@ const SQS = {
         });
     },
 
-    longPoll: (name, handleMessage) => {
+    longPoll: (url, handleMessage) => {
         const app = Consumer.create({
-            queueUrl: queueURLs[name],
+            queueUrl: url,
             handleMessage: handleMessage,
             visibilityTimeout: 30,
             sqs: new AWS.SQS()
@@ -68,9 +56,9 @@ const SQS = {
         return app;
     },
 
-    receive: (name) => {
+    receive: (url) => {
         sqs.receiveMessage({
-            QueueUrl: queueURLs[name],
+            QueueUrl: url,
             VisibilityTimeout: 20,
             WaitTimeSeconds: 0
         }, (err, data) => {

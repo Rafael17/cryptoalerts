@@ -9,6 +9,7 @@ const getSecret 	= require('./scripts/getSecret');
 require('dotenv').config();
 
 getSecret('prod/telegram', ['TELEGRAM_API_KEY','BOT_NAME']);
+getSecret('prod/sqs-price-alert-update', ['SQS_URL_FOR_PRICE_UPDATES'])
 
 const app = express();
 app.locals.pretty = true;

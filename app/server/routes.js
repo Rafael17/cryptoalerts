@@ -104,7 +104,7 @@ module.exports = function(app) {
 				if (e){
 					res.status(400).json({error: true, message: 'error-adding-price-alert'});
 				} else {
-					SQS.send('PRICE_ALERT_UPDATED');
+					SQS.send(process.env.SQS_URL_FOR_PRICE_UPDATES);
 					res.status(200).json({success: true});
 				}
 			});
@@ -145,7 +145,7 @@ module.exports = function(app) {
 				res.json({error: true, message: 'Error deleting alert'});
 			}	else{
 				res.json({success: true, message: 'Alert has been deleted'});
-				SQS.send('PRICE_ALERT_UPDATED');
+				SQS.send(process.env.SQS_URL_FOR_PRICE_UPDATES);
 			}
 		});
 	});

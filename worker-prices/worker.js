@@ -29,6 +29,9 @@ getSecret('prod/sqs-price-alert-update', ['SQS_URL_FOR_PRICE_UPDATES'])
 var alerts = [];
 
 const checkAlerts = (exchangeData) => {
+	if(alerts[exchangeData.name] === undefined) {
+		return;
+	}
 	alerts[exchangeData.name].map( alert  => {
 		if(alert.price < exchangeData.prices[alert.pair] && alert.cross == 'Cross Up') {
 			triggerAlert(alert, "above");

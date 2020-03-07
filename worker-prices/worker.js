@@ -77,9 +77,6 @@ const getAllAlerts = () => {
 	});
 }
 
-const binanceURL = 'https://api.binance.com/api/v3/ticker/price';
-const bitmexURL = 'https://www.bitmex.com/api/v1/trade/bucketed?binSize=1m&partial=true&count=100&reverse=true';
-
 const exchangeHTTPRequest = (url, callback) => {
 	request({
 		url: url,
@@ -99,7 +96,7 @@ const requestLoop = (milliseconds, url, callback) => {
 	}, milliseconds);
 }
 
-requestLoop(1000, binanceURL, (data) => {
+requestLoop(1000, process.env.BINANCE_PRICES_URL, (data) => {
 	const prices = data.reduce((acc, { symbol, price }) => {
 		acc[symbol] = price * 1 ;
 		return acc;
@@ -109,21 +106,12 @@ requestLoop(1000, binanceURL, (data) => {
 });
 
 // Bitmex rate limit is 2 seconds per request
-requestLoop(3000, bitmexURL, (data) => {
+requestLoop(3000, process.env.BITMEX_PRICES_URL, (data) => {
 	if(!Array.isArray(data)) {
 		return;
 	}
 
-	var uniqueSymbols = {};
-	const uniques = data.filter(({symbol}, pos, self)=> {
-		if(uniqueSymbols[symbol] == undefined) {
-			uniqueSymbols[symbol] = symbol;
-			return true;
-		} 
-		return false;
-	});
-
-	const prices = uniques.reduce((acc, { symbol, close }) => {
+	const prices = data.reduce((acc, { symbol, close }) => {
 		acc[symbol]= close * 1 ;
 		return acc;
 	}, {});

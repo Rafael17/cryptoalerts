@@ -1,6 +1,7 @@
 version: "2"
 
 services:
+#--------------------------------------------------------------------------------#
   mongoDB:
     image: mongo
     mem_limit: 200m
@@ -8,43 +9,49 @@ services:
       - 27017:27017
     volumes:
       - /var/lib/docker/volumes/mongodb_volume/_data:/data/db
-
+#--------------------------------------------------------------------------------#
   worker-prices:
-    image: 263846239257.dkr.ecr.us-west-1.amazonaws.com/crypto-alert-images
+    image: node
     mem_limit: 200m
     working_dir: /usr/src/app
-    
     depends_on:
       - mongoDB
     links:
       - "mongoDB:mongoDB"
-    command: node worker-prices/worker.js
+    command:  >
+      sh -c "git clone https://github.com/Rafael17/cryptoalerts.git . &&
+             npm install &&
+             node worker-prices/worker.js"
     env_file:
       - default.env
     environment:
-      - APP_STARTUP=worker-prices/worker.js
       - ENVIRONMENT=prod
-
+#--------------------------------------------------------------------------------#
   worker-telegram:
-    image: 263846239257.dkr.ecr.us-west-1.amazonaws.com/crypto-alert-images
+    image: node
     mem_limit: 200m
     working_dir: /usr/src/app
     depends_on:
       - mongoDB
     links:
       - "mongoDB:mongoDB"
-    command: node worker-telegram/worker.js
+    command:  >
+      sh -c "git clone https://github.com/Rafael17/cryptoalerts.git . &&
+             npm install &&
+             node worker-telegram/worker.js"
     env_file:
       - default.env
     environment:
-      - APP_STARTUP=worker-telegram/worker.js
       - ENVIRONMENT=prod
-
+#--------------------------------------------------------------------------------#
   web-server-container:
-    image: 263846239257.dkr.ecr.us-west-1.amazonaws.com/crypto-alert-images
+    image: node
     mem_limit: 200m
     working_dir: /usr/src/app
-    command: node app.js
+    command:  >
+      sh -c "git clone https://github.com/Rafael17/cryptoalerts.git . &&
+             npm install &&
+             node app.js"
     depends_on:
       - mongoDB
     links:
@@ -54,5 +61,4 @@ services:
     env_file:
       - default.env
     environment: 
-      - APP_STARTUP=app.js
       - ENVIRONMENT=prod

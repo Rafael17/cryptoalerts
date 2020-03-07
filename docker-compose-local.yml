@@ -8,7 +8,7 @@ services:
     image: mongo
     ports:
       - 27017:27017
-
+#--------------------------------------------------------------------------------#
   worker-prices:
     image: node:9-slim
     working_dir: /usr/src/app
@@ -21,7 +21,7 @@ services:
     command: node worker-prices/worker.js
     env_file:
       - default.env
-
+#--------------------------------------------------------------------------------#
   worker-telegram:
     image: node:9-slim
     working_dir: /usr/src/app
@@ -34,8 +34,7 @@ services:
     command: node worker-telegram/worker.js
     env_file:
       - default.env
-
-  # The actual client application
+#--------------------------------------------------------------------------------#
   web-server-container:
     image: node:9-slim
     working_dir: /usr/src/app
@@ -44,8 +43,6 @@ services:
       - mongoDB
     links:
       - "mongoDB:mongoDB"
-    
-    # make sure the mounted volume path is of the app's directory
     volumes:
       - .:/usr/src/app
     ports:

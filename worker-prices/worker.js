@@ -6,6 +6,7 @@ const mongoUtil 	= require('./../database');
 const SQS 			= require('./../sqs');
 const getSecret 	= require('./../scripts/getSecret');
 
+
 let PriceAlertMng 	= null;
 
 getSecret('prod/telegram', ['TELEGRAM_API_KEY','BOT_NAME']);
@@ -13,31 +14,34 @@ getSecret('prod/telegram', ['TELEGRAM_API_KEY','BOT_NAME']);
 mongoUtil.connect( ( err, client ) => {
 	if (err) console.log(err);
 	PriceAlertMng	= require('./priceAlertManager');
+	require('./queryAPIs');
 	getAllAlerts();
 });
 
-const sqsReceiveMessage = (message) => {
-    console.log('Processing message: ', message.MessageId);
-    getAllAlerts();
-};
+// const sqsReceiveMessage = (message) => {
+//     console.log('Processing message: ', message.MessageId);
+//     getAllAlerts();
+// };
 
-getSecret('prod/sqs-price-alert-update', ['SQS_URL_FOR_PRICE_UPDATES'])
-.then(() => {
-	SQS.longPoll(process.env.SQS_URL_FOR_PRICE_UPDATES, sqsReceiveMessage).start();
-})
+// getSecret('prod/sqs-price-alert-update', ['SQS_URL_FOR_PRICE_UPDATES'])
+// .then(() => {
+// 	SQS.longPoll(process.env.SQS_URL_FOR_PRICE_UPDATES, sqsReceiveMessage).start();
+// })
 
-var alerts = [];
-
-const checkAlerts = (exchangeData) => {
-	if(alerts[exchangeData.name] === undefined) {
+const checkAlerts = (alerts, exchangeData) => {
+	if(alerts.length === 0) {
 		return;
 	}
-	alerts[exchangeData.name].map( alert  => {
-		if(alert.price < exchangeData.prices[alert.pair] && alert.cross == 'Cross Up') {
-			triggerAlert(alert, "above");
-		} if(alert.price > exchangeData.prices[alert.pair] && alert.cross == 'Cross Down') {
-			triggerAlert(alert, "below");
-		}
+
+	alertsExchanges = Object.keys(alerts);
+	alertsExchanges.map(( exchange ) => {
+		alerts[exchange].map( alert  => {
+			if(alert.price < exchangeData[exchange][alert.pair] && alert.cross == 'Cross Up') {
+				triggerAlert(alert, "above");
+			} if(alert.price > exchangeData[exchange][alert.pair] && alert.cross == 'Cross Down') {
+				triggerAlert(alert, "below");
+			}
+		})
 	})
 }
 
@@ -70,52 +74,30 @@ const sendMessageToTelegram = (form) => {
 const getAllAlerts = () => {
 	PriceAlertMng.getAllPriceAlerts((e, data) => {
 		if(e) {
-			console.log(e)
+			console.error(e)
 			return;
 		}
-		alerts = data;
+		getAllPrices(data);
 	});
 }
 
-const exchangeHTTPRequest = (url, callback) => {
-	request({
-		url: url,
-		json: true,
-		method: "GET",
-		timeout: 10000
-	}, (err, res, body) => {
-		if(err) 
-			return console.log(err); 
-		callback(body);
+const getAllPrices = (alerts) => {
+	PriceAlertMng.getAllPrices((e, data) => {
+		if(e) {
+			console.error(e)
+			return;
+		}
+		if(data.length === 0) {
+			return;
+		}
+		const prices = data.reduce( (acc, value) => {
+			acc[value['name']] = value.prices;
+			return acc;
+		}, {})
+
+		checkAlerts(alerts, prices);
 	});
 }
 
-const requestLoop = (milliseconds, url, callback) => {
-	setInterval(() => {
-		exchangeHTTPRequest(url, callback);
-	}, milliseconds);
-}
+setInterval(getAllAlerts, 1000);
 
-requestLoop(1000, process.env.BINANCE_PRICES_URL, (data) => {
-	const prices = data.reduce((acc, { symbol, price }) => {
-		acc[symbol] = price * 1 ;
-		return acc;
-	}, {});
-	const exchangeData = { name: 'Binance', prices };
-	checkAlerts(exchangeData);
-});
-
-// Bitmex rate limit is 2 seconds per request
-requestLoop(3000, process.env.BITMEX_PRICES_URL, (data) => {
-	if(!Array.isArray(data)) {
-		return;
-	}
-
-	const prices = data.reduce((acc, { symbol, close }) => {
-		acc[symbol]= close * 1 ;
-		return acc;
-	}, {});
-	const exchangeData = { name: 'Bitmex', prices };
-	checkAlerts(exchangeData);
-
-});

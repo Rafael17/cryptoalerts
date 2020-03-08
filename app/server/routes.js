@@ -1,7 +1,6 @@
 
 const AcccountManager = require('./modules/account-manager');
 const EM = require('./modules/email-dispatcher');
-const TradingPairs = require('./modules/tradingPairs');
 const AlertManager = require('./modules/alert-manager');
 const PubSub = require('pubsub-js');
 const request = require('request');

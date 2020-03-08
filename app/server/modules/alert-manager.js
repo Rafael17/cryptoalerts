@@ -6,7 +6,8 @@ const mongo			= require('./../../../database').getMongo();
 const PubSub 		= require('pubsub-js');
 
 const priceAlert 	= db.collection('priceAlert');
-const accounts 	= db.collection('accounts');
+const accounts 		= db.collection('accounts');
+const prices 		= db.collection('prices');
 
 AlertManager = {
 	getPriceAlerts: (userId, callback) => {
@@ -31,7 +32,15 @@ AlertManager = {
 	},
 	getTelegramChatIdByUserId: (userId, callback) => {
 		accounts.findOne({_id: new mongo.ObjectId(userId)}, callback);
-	}
+	},
+	getAllPrices: (callback) => {
+		const result = [];
+		prices.find({}).forEach(e => {
+			result.push(e);
+		}).then(e => {
+			callback(null, result);
+		});
+	},
 }
 
 module.exports = AlertManager; 

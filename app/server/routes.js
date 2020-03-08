@@ -115,16 +115,17 @@ module.exports = function(app) {
 		if (req.session.user == null){
 			res.redirect('/');
 		}	else{
-			TradingPairs.getPairs((error, pairs) => {
-				var exchanges = Array.from(new Set(pairs.map(e => e.exchange)));
-				const p = exchanges.map((exchange) => {
-					const p = pairs.filter((pair) => pair.exchange === exchange).map((e) => {
-						const value = e.exchange + " - " + e.pair;
-						return {value: value, label: value};
-					});
-					return p;
-				});
-				const pairsFinal = [].concat.apply([], p);
+			AlertManager.getAllPrices((error, exchanges) => {
+				const allPairs = exchanges.map( ({ name, prices }) => {
+					pairs = [];
+					for(key in prices) {
+						const value = name + " - " + key;
+						const label = name + " - " + key.split('-').join('');
+						pairs.push({value: value, label: label});
+					}
+					return pairs
+				})
+				const pairsFinal = [].concat.apply([], allPairs);
 				AlertManager.getPriceAlerts(req.session.user._id, (e, alerts) => {
 					res.json({
 						title : 'Price Alerts',

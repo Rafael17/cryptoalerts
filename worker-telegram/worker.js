@@ -26,8 +26,8 @@ const runBot = () => {
         const input = ctx.match[0];
         var returnMessage = [];
 
-        DatabaseMng.getUserByTelegramChatId(telegramChatId * 1, (error, object) => {
-            if(object == null) {
+        DatabaseMng.getUserByTelegramChatId(telegramChatId * 1, (error, userData) => {
+            if(userData == null) {
                 DatabaseMng.addTelegramId(input, telegramChatId * 1, (error, object) => {
                     if(object != null && !object.lastErrorObject.updatedExisting) {
                         ctx.reply('Wrong passcode! Login to crypto alerts to view your telegram passcode');
@@ -37,33 +37,53 @@ const runBot = () => {
                 });
             }
             else {
-                ctx.reply(processInput(input));
+                processInput(input, userData,ctx);
             }
         });
     });
 };
 
-const processInput = (input) => {
-    switch(input) {
-        case '/list':/*
-            request(process.env.SERVER_ORIGIN + '/users/' + result._id + '/alerts', { json: true }, (error, res, body) => {
-                if (error) { return console.log(error); }
-                returnMessage = body.map(({ exchange, price, pair, cross }) => {
-                    return exchange + '\n' + pair + '\n' + price + '\n' + cross +'\n';
-                });
-                if(returnMessage.length === 0) {
-                    return 'No price alerts have been set';
+const processInput = (input, userData, ctx) => {
+    if(input.startsWith('/delete_')) {
+        const alertId = input.split('_')[1];
+        DatabaseMng.deleteAlert(alertId, userData._id, (error, data) =>{
+            if(error) {
+                console.error(error);
+                ctx.reply('Not able to delete alert');
+            } else {
+                if(data.deletedCount === 0) {
+                    ctx.reply('Alert does not exist');
                 } else {
-                    return returnMessage.join('\n');
+                    ctx.reply('Alert was deleted');
                 }
-            });*/
-            return 'list comming';
+            }
+        });
+        return;
+    }
+
+    switch(input) {
+        case '/list':
+            DatabaseMng.getUserAlerts(userData._id, (error, data) =>{
+                if(error) {
+                    console.error(error);
+                    ctx.reply('internal server error');
+                } else {
+                    if(data.length === 0) {
+                        ctx.reply('No price alerts have been set');
+                        return;
+                    }
+                    const returnMessage = data.map(({ _id, exchange, price, pair, cross }) => {
+                        return exchange + '\n' + pair + '\n' + price + '\n' + cross +'\n /delete_'+_id+'\n';
+                    });
+                    ctx.reply(returnMessage.join('\n'));
+                }
+            });
             break;
         case '/help':
-            return 'Available commands:\n/list';
+            ctx.reply('Available commands:\n/list');
             break;
         default:
-            return 'Command not recognized.\nFor a list of commands use\n /help';
+            ctx.reply('Command not recognized.\nFor a list of commands use\n /help');
             break;
     }
 }

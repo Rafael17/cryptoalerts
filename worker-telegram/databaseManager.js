@@ -16,8 +16,15 @@ DatabaseManager = {
 				else callback(null, res)
 		});
 	},
-	getUser : (userId, callback) => {
-		accounts.findOne({_id: getObjectId(userId)}, callback);
+	getUserAlerts: (userId, callback) => {
+		priceAlert.find({ userId: userId.toString() }).toArray(
+			(e, res) => {
+				if (e) callback(e)
+				else callback(null, res)
+		});
+	},
+	deleteAlert: (alertId, userId, callback) => {
+		priceAlert.deleteOne({_id: new mongo.ObjectId(alertId), userId: userId.toString()}, callback);
 	},
 	getUserByTelegramChatId: (telegramChatId, callback) => {
 		accounts.findOne({telegramChatId: telegramChatId}, callback);

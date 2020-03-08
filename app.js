@@ -9,7 +9,6 @@ const getSecret 	= require('./scripts/getSecret');
 require('dotenv').config();
 
 getSecret('prod/telegram', ['TELEGRAM_API_KEY','BOT_NAME']);
-getSecret('prod/sqs-price-alert-update', ['SQS_URL_FOR_PRICE_UPDATES'])
 
 const app = express();
 app.locals.pretty = true;
@@ -21,7 +20,7 @@ app.use(express.static(__dirname + '/dist'));
 
 
 mongoUtil.connect(( err, client ) => {
-	if (err) console.log(err);
+	if (err) console.error(err);
 	require('./scripts/downloadFrontEnd');
 	require('./scripts/storeTradingPairs');
 

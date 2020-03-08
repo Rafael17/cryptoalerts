@@ -5,7 +5,6 @@ const TradingPairs = require('./modules/tradingPairs');
 const AlertManager = require('./modules/alert-manager');
 const PubSub = require('pubsub-js');
 const request = require('request');
-const SQS = require('../../sqs.js');
 const path = require('path');
 
 module.exports = function(app) {
@@ -104,7 +103,6 @@ module.exports = function(app) {
 				if (e){
 					res.status(400).json({error: true, message: 'error-adding-price-alert'});
 				} else {
-					SQS.send(process.env.SQS_URL_FOR_PRICE_UPDATES);
 					res.status(200).json({success: true});
 				}
 			});
@@ -120,7 +118,9 @@ module.exports = function(app) {
 					pairs = [];
 					for(key in prices) {
 						const value = name + " - " + key;
-						const label = name + " - " + key.split('-').join('');
+						const price = prices[key] * 1;
+						const priceDisplay = (price < 1 ? price.toFixed(5) : price.toFixed(2));
+						const label = name + " - " + key.split('-').join('') + ' (' + priceDisplay +')';
 						pairs.push({value: value, label: label});
 					}
 					return pairs
@@ -146,7 +146,6 @@ module.exports = function(app) {
 				res.json({error: true, message: 'Error deleting alert'});
 			}	else{
 				res.json({success: true, message: 'Alert has been deleted'});
-				SQS.send(process.env.SQS_URL_FOR_PRICE_UPDATES);
 			}
 		});
 	});

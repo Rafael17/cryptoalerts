@@ -10,9 +10,10 @@ Set price alerts for cryptocurrency pairs and receive Telegram notifications
 ## Supported Exchanges
 * Binance
 * Bitmex
+* Coinbase Pro
 
 ## Architecture
-Fully dockerized application running on a EC2 server with an Application Load Balancer and a message broker. Thus the application is loosely coupled and ready for scaling when needed.
+Fully dockerized application running on a EC2 server with an Application Load Balancer. Thus the application is loosely coupled and ready for scaling when needed.
 
 ### Containers
 1. Web Server (API consumed by Frontend React <https://github.com/Rafael17/cryptoalerts-frontend>)
@@ -24,8 +25,7 @@ Fully dockerized application running on a EC2 server with an Application Load Ba
 1. Rename .env-sample to .env and store AWS credentials
 2. Create a bot in Telegram using BotFather from your mobile phone and add `TELEGRAM_API_KEY` and `BOT_NAME` from BotFather in .env file
 3. Store the CryptoAlerts FrontEnd React build dist in an S3 bucket and update default.env `S3_FRONT_END_BUCKET`
-4. Create an SQS queue and update .env `SQS_URL_FOR_PRICE_ALERT_URL`
-5. Install docker: <https://docs.docker.com/get-docker/>
+4. Install docker: <https://docs.docker.com/get-docker/>
 
 Then run: 
 ```shell

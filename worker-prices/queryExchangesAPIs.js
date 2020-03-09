@@ -46,7 +46,7 @@ const Coinbase = {
 		websocket.on('message', data => {
 			const { price, product_id } = data;
 			if(product_id !== undefined && price !== undefined)
-			Coinbase.prices[product_id] = price;
+			Coinbase.prices[product_id] = price * 1;
 		});
 		websocket.on('error', err => {
 

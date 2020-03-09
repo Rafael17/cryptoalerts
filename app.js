@@ -12,7 +12,7 @@ getSecret('prod/telegram', ['TELEGRAM_API_KEY','BOT_NAME']);
 
 const app = express();
 app.locals.pretty = true;
-app.set('port', process.env.SERVER_PORT);
+app.set('port', 80);
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));

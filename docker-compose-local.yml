@@ -20,7 +20,7 @@ services:
       - "mongoDB:mongoDB"
     command: node worker-prices/worker.js
     env_file:
-      - default.env
+      - dev.env
 #--------------------------------------------------------------------------------#
   worker-telegram:
     image: node:9-slim
@@ -33,7 +33,7 @@ services:
       - "mongoDB:mongoDB"
     command: node worker-telegram/worker.js
     env_file:
-      - default.env
+      - dev.env
 #--------------------------------------------------------------------------------#
   web-server-container:
     image: node:9-slim
@@ -48,4 +48,4 @@ services:
     ports:
       - 80:80
     env_file:
-      - default.env
+      - dev.env

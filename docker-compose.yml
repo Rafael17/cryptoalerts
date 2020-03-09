@@ -22,10 +22,12 @@ services:
       sh -c "git clone https://github.com/Rafael17/cryptoalerts.git . &&
              npm install &&
              node worker-prices/worker.js"
-    env_file:
-      - default.env
     environment:
       - ENVIRONMENT=prod
+      - S3_FRONT_END_BUCKET=cryptoalertsfrontend
+      - DB_NAME=cryptoalerts
+      - DB_CONNECTION_STRING=mongodb://mongoDB:27017
+      - AWS_REGION=us-west-1
 #--------------------------------------------------------------------------------#
   worker-telegram:
     image: node
@@ -39,10 +41,12 @@ services:
       sh -c "git clone https://github.com/Rafael17/cryptoalerts.git . &&
              npm install &&
              node worker-telegram/worker.js"
-    env_file:
-      - default.env
     environment:
       - ENVIRONMENT=prod
+      - S3_FRONT_END_BUCKET=cryptoalertsfrontend
+      - DB_NAME=cryptoalerts
+      - DB_CONNECTION_STRING=mongodb://mongoDB:27017
+      - AWS_REGION=us-west-1
 #--------------------------------------------------------------------------------#
   web-server-container:
     image: node
@@ -58,7 +62,9 @@ services:
       - "mongoDB:mongoDB"
     ports:
       - 80:80
-    env_file:
-      - default.env
     environment: 
       - ENVIRONMENT=prod
+      - S3_FRONT_END_BUCKET=cryptoalertsfrontend
+      - DB_NAME=cryptoalerts
+      - DB_CONNECTION_STRING=mongodb://mongoDB:27017
+      - AWS_REGION=us-west-1

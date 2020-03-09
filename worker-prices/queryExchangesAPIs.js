@@ -5,6 +5,9 @@ const request 		= require('request');
 const PublicClient 	= new CoinbasePro.PublicClient();
 const PriceAlertMng	= require('./priceAlertManager');
 
+const BINANCE_PRICES_URL="https://api.binance.com/api/v3/ticker/price"
+const BITMEX_PRICES_URL="https://www.bitmex.com/api/v1/trade/bucketed?binSize=1m&partial=true&count=100&reverse=true"
+
 const exchangeHTTPRequest = (url, callback) => {
 	request({ url: url, json: true, method: "GET", timeout: 10000}, (err, res, body) => {
 		if(err) 
@@ -56,7 +59,7 @@ const Coinbase = {
 
 const Bitmex = {
 	start: () => {
-		requestLoop(3000, process.env.BITMEX_PRICES_URL, (data) => {
+		requestLoop(3000, BITMEX_PRICES_URL, (data) => {
 			if(!Array.isArray(data)) {
 				return;
 			}
@@ -72,7 +75,7 @@ const Bitmex = {
 
 const Binance = {
 	start: () => {
-		requestLoop(1000, process.env.BINANCE_PRICES_URL, (data) => {
+		requestLoop(1000, BINANCE_PRICES_URL, (data) => {
 			const prices = data.reduce((acc, { symbol, price }) => {
 				acc[symbol] = price * 1 ;
 				return acc;

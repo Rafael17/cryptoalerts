@@ -21,7 +21,11 @@ app.use(express.static(__dirname + '/dist'));
 
 mongoUtil.connect(( err, client ) => {
 	if (err) console.error(err);
-	require('./scripts/downloadFrontEnd');
+	if(process.env.ENVIRONMENT === 'prod') {
+		require('./scripts/downloadFrontEnd');
+	} else {
+		console.log("Remember to copy the dist files from https://github.com/Rafael17/cryptoalerts-frontend");
+	}
 
 	app.use(session({
 		secret: 'faeb4453e5d14fe6f6d04637f78077c76c73d1b4',

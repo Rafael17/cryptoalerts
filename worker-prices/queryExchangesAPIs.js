@@ -3,8 +3,21 @@ require('dotenv').config();
 const CoinbasePro 	= require('coinbase-pro');
 const request 		= require('request');
 const PublicClient 	= new CoinbasePro.PublicClient();
-const mongoUtil 	= require('./../database');
 const PriceAlertMng	= require('./priceAlertManager');
+
+const exchangeHTTPRequest = (url, callback) => {
+	request({ url: url, json: true, method: "GET", timeout: 10000}, (err, res, body) => {
+		if(err) 
+			return console.error(err); 
+		callback(body);
+	});
+}
+
+const requestLoop = (milliseconds, url, callback) => {
+	setInterval(() => {
+		exchangeHTTPRequest(url, callback);
+	}, milliseconds);
+}
 
 const Coinbase = {
 	prices: {},
@@ -39,20 +52,6 @@ const Coinbase = {
 
 		});
 	}
-}
-
-const exchangeHTTPRequest = (url, callback) => {
-	request({ url: url, json: true, method: "GET", timeout: 10000}, (err, res, body) => {
-		if(err) 
-			return console.error(err); 
-		callback(body);
-	});
-}
-
-const requestLoop = (milliseconds, url, callback) => {
-	setInterval(() => {
-		exchangeHTTPRequest(url, callback);
-	}, milliseconds);
 }
 
 const Bitmex = {

@@ -3,20 +3,24 @@ require('dotenv').config();
 const AWS = require('aws-sdk');
 const region = process.env.AWS_REGION || 'us-west-1';
 
-if(process.env.AWS_KEY) {
-    AWS.config.update({
-        accessKeyId: process.env.AWS_KEY,
-        secretAccessKey: process.env.AWS_SECRET
-    });
-} else {
-    AWS.config.credentials = new AWS.EC2MetadataCredentials();
+const addAWSConfigs = () => {
+    
+    if(process.env.AWS_KEY) {
+        AWS.config.update({
+            accessKeyId: process.env.AWS_KEY,
+            secretAccessKey: process.env.AWS_SECRET
+        });
+    } else {
+        AWS.config.credentials = new AWS.EC2MetadataCredentials();
+    }
 }
 
 const getSecret = (name, keys) => {
 
-    const client = new AWS.SecretsManager({region: region});
     const promise = new Promise((resolve, reject) => {
         if(process.env.ENVIRONMENT == 'prod') {
+            const client = new AWS.SecretsManager({region: region});
+            addAWSConfigs();
 
             client.getSecretValue({SecretId: name}, function(err, data) {
                 let secret;

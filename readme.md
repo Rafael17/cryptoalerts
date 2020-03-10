@@ -1,5 +1,6 @@
 # Crypto Alerts
 Set price alerts for cryptocurrency pairs and receive Telegram notifications
+https://rafaelarcieri.com/
 
 ## Technologies
 * AWS (EC2, ECS, ELB, Target Groups, IAM roles, SQS, SecretManager, etc)

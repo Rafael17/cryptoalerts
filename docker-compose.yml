@@ -61,7 +61,7 @@ services:
     links:
       - "mongoDB:mongoDB"
     ports:
-      - 80:80
+      - 443:80
     environment: 
       - ENVIRONMENT=prod
       - S3_FRONT_END_BUCKET=cryptoalertsfrontend

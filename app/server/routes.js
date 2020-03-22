@@ -5,6 +5,7 @@ const AlertManager = require('./modules/alert-manager');
 const PubSub = require('pubsub-js');
 const request = require('request');
 const path = require('path');
+const getMarkectcap = require('./../../scripts/coinmarketcapAPI');
 
 module.exports = function(app) {
 
@@ -215,6 +216,12 @@ module.exports = function(app) {
 			}
 		})
 	});
+
+	app.get('/api/coinmarketcap', function(req, res) {
+		getMarkectcap((data) => {
+			res.status(200).json(data);
+		})
+	})
 	
 	app.get('/api/health-check', function(req, res) { res.status(200).json({success: true}); });
 	

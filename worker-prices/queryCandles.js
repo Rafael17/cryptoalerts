@@ -2,20 +2,16 @@ require('dotenv').config();
 const BitMEXClient 	= require('bitmex-realtime-api');
 const Candles 		= require('./candles');
 const Indicators 	= require('./indicators');
-const mongoUtil 	= require('./../database');
 const Telegraf 		= require('telegraf');
 const getSecret 	= require('./../scripts/getSecret');
 getSecret('prod/telegram', ['TELEGRAM_API_KEY','BOT_NAME']);
 
-let PriceAlertMng = null;
-mongoUtil.connect( ( err, client ) => {
-	if (err) console.log(err);
-	PriceAlertMng	= require('./priceAlertManager');
-});
+const PriceAlertMng = require('./priceAlertManager');
+
 
 const client1 = new BitMEXClient({testnet: false, maxTableLen: 1});
-const allCandles = { 3: [], 5: [], 15: [], 60: [], 240: []};
-const availableTimeframes = [ 3, 5, 15, 60, 240];
+const allCandles = { 5: [], 15: [], 60: [], 240: []};
+const availableTimeframes = [ 5, 15, 60, 240];
 const timeframeMap = {
 	'5': '5 min',
 	'15': '15 min',

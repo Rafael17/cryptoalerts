@@ -12,7 +12,7 @@ const isRecentHigh = (candles, totalLen, patternLen) => {
 const Indicators = {
 
 	isEngulfing: (candles, callback) => {
-		const totalLen = 2;
+		const totalLen = 5;
 
 		if(candles.length < totalLen) {
 			return callback(false);
@@ -31,7 +31,7 @@ const Indicators = {
 	},
 
 	isStar: (candles, callback) => {
-		const totalLen = 3;
+		const totalLen = 8;
 		
 		if(candles.length < totalLen) {
 			return callback(false);

@@ -5,6 +5,7 @@ const mongo			= require('./../database').getMongo();
 const priceAlert 	= db.collection('priceAlert');
 const accounts 		= db.collection('accounts');
 const prices 		= db.collection('prices');
+const indicatorAlert= db.collection('indicatorAlert');
 
 PriceAlertManager = {
 	deletePriceAlertById: (id, callback) => {
@@ -36,6 +37,14 @@ PriceAlertManager = {
 	},
 	getUser: (id, callback) => {
 		accounts.findOne({_id: new mongo.ObjectId(id)}, callback);
+	},
+	getIndicatorAlerts: (exchange, pair, timeframe, indicator, callback) => {
+		const result = [];
+		indicatorAlert.find({exchange, pair,[`timeframe_${timeframe}`]: true, indicator}).forEach(e => {
+			result.push(e.userId);
+		}).then(e => {
+			callback(null, result);
+		});
 	},
 	addPriceForExchange: (exchange, data, callback) => {
 		prices.updateOne({name: exchange}, {$set: {prices: data}}, {upsert: true}, function(e, o){

@@ -85,6 +85,43 @@ module.exports = function(app) {
 	});
 
 	/******************\
+		indicator alerts
+	\*******************/
+
+	app.post('/api/indicator-alert', function(req, res) {
+		if (req.session.user == null){
+			res.redirect('/');
+		} else {
+			AlertManager.addIndicatorAlert({
+				userId		: req.session.user._id,
+				exchange 	: req.body['exchange'],
+				pair		: req.body['pair'],
+				indicator 	: req.body['indicator'],
+				timeframe_5	: req.body['timeframe_5'],
+				timeframe_15: req.body['timeframe_15'],
+				timeframe_60: req.body['timeframe_60'],
+				timeframe_240: req.body['timeframe_240']
+			}, (e, o) => {
+				if (e){
+					res.status(400).json({error: true, message: 'error-adding-indicator-alert'});
+				} else {
+					res.status(200).json({success: true});
+				}
+			});
+		}
+	});
+
+	app.delete('/api/indicator-alert/:id', function(req, res) {
+		AlertManager.deleteIndicatorAlertById(req.params.id, (e, o) => {
+			if (e){
+				res.json({error: true, message: 'Error deleting alert'});
+			}	else{
+				res.json({success: true, message: 'Alert has been deleted'});
+			}
+		});
+	});
+
+	/******************\
 		price alerts
 	\*******************/
 
@@ -126,13 +163,14 @@ module.exports = function(app) {
 					return pairs
 				})
 				const pairsFinal = [].concat.apply([], allPairs);
-				AlertManager.getPriceAlerts(req.session.user._id, (e, alerts) => {
+				AlertManager.getAllAlerts(req.session.user._id, (e, alerts) => {
+					if(e) console.log(e);
 					res.json({
-						title : 'Price Alerts',
 						exchanges: ['Bitmex','Binance'],
 						pairs : pairsFinal,
 						userData : req.session.user,
-						alerts: alerts,
+						priceAlerts: alerts[0],
+						indicatorAlerts: alerts[1],
 						botName:process.env.BOT_NAME
 					});
 				});

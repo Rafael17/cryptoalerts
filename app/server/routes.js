@@ -97,6 +97,7 @@ module.exports = function(app) {
 				exchange 	: req.body['exchange'],
 				pair		: req.body['pair'],
 				indicator 	: req.body['indicator'],
+				timeframe_1	: req.body['timeframe_1'],
 				timeframe_5	: req.body['timeframe_5'],
 				timeframe_15: req.body['timeframe_15'],
 				timeframe_60: req.body['timeframe_60'],

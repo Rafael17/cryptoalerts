@@ -44,9 +44,25 @@ const runBot = () => {
 };
 
 const processInput = (input, userData, ctx) => {
-    if(input.startsWith('/delete_')) {
-        const alertId = input.split('_')[1];
-        DatabaseMng.deleteAlert(alertId, userData._id, (error, data) =>{
+    if(input.startsWith('/delete_price')) {
+        const alertId = input.split('_')[2];
+        DatabaseMng.deletePriceAlert(alertId, userData._id, (error, data) =>{
+            if(error) {
+                console.error(error);
+                ctx.reply('Not able to delete alert');
+            } else {
+                if(data.deletedCount === 0) {
+                    ctx.reply('Alert does not exist');
+                } else {
+                    ctx.reply('Alert was deleted');
+                }
+            }
+        });
+        return;
+    }
+    if(input.startsWith('/delete_indicator')) {
+        const alertId = input.split('_')[2];
+        DatabaseMng.deleteIndicatorAlert(alertId, userData._id, (error, data) =>{
             if(error) {
                 console.error(error);
                 ctx.reply('Not able to delete alert');
@@ -62,8 +78,8 @@ const processInput = (input, userData, ctx) => {
     }
 
     switch(input) {
-        case '/list':
-            DatabaseMng.getUserAlerts(userData._id, (error, data) =>{
+        case '/list_price_alerts':
+            DatabaseMng.getUserPriceAlerts(userData._id, (error, data) =>{
                 if(error) {
                     console.error(error);
                     ctx.reply('internal server error');
@@ -73,14 +89,31 @@ const processInput = (input, userData, ctx) => {
                         return;
                     }
                     const returnMessage = data.map(({ _id, exchange, price, pair, cross }) => {
-                        return exchange + '\n' + pair + '\n' + price + '\n' + cross +'\n /delete_'+_id+'\n';
+                        return exchange + '\n' + pair + '\n' + price + '\n' + cross +'\n /delete_price_'+_id+'\n';
+                    });
+                    ctx.reply(returnMessage.join('\n'));
+                }
+            });
+            break;
+        case '/list_indicator_alerts':
+            DatabaseMng.getUserIndicatorAlerts(userData._id, (error, data) =>{
+                if(error) {
+                    console.error(error);
+                    ctx.reply('internal server error');
+                } else {
+                    if(data.length === 0) {
+                        ctx.reply('No indicator alerts have been set');
+                        return;
+                    }
+                    const returnMessage = data.map(({ _id, exchange, pair, indicator }) => {
+                        return exchange + '\n' + pair + '\n' + indicator  +'\n /delete_indicator_'+_id+'\n';
                     });
                     ctx.reply(returnMessage.join('\n'));
                 }
             });
             break;
         case '/help':
-            ctx.reply('Available commands:\n/list');
+            ctx.reply('Available commands:\n/list_price_alerts\n/list_indicator_alerts');
             break;
         default:
             ctx.reply('Command not recognized.\nFor a list of commands use\n /help');

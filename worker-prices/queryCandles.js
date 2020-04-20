@@ -10,9 +10,10 @@ const PriceAlertMng = require('./priceAlertManager');
 
 
 const client1 = new BitMEXClient({testnet: false, maxTableLen: 1});
-const allCandles = { 5: [], 15: [], 60: [], 240: []};
-const availableTimeframes = [ 5, 15, 60, 240];
+const allCandles = { 1: [], 5: [], 15: [], 60: [], 240: []};
+const availableTimeframes = [ 1, 5, 15, 60, 240];
 const timeframeMap = {
+	'1': '1 min',
 	'5': '5 min',
 	'15': '15 min',
 	'60': '1 hour',
@@ -45,7 +46,8 @@ client1.addStream('XBTUSD', 'tradeBin1m', (data, symbol, tableName) => {
 });
 
 client1.on('error', (error) => {
-  console.log(error);
+	console.error("Error: Requesting data from Bitmex stream")
+	console.error(error);
 });
 
 const alertUsers = (indicatorData, timeframe) => {

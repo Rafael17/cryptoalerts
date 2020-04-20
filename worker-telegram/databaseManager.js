@@ -3,6 +3,7 @@ const db 			= require('./../database').getDb();
 const mongo			= require('./../database').getMongo();
 
 const priceAlert 	= db.collection('priceAlert');
+const indicatorAlert= db.collection('indicatorAlert');
 const accounts 		= db.collection('accounts');
 
 DatabaseManager = {
@@ -16,14 +17,25 @@ DatabaseManager = {
 				else callback(null, res)
 		});
 	},
-	getUserAlerts: (userId, callback) => {
+	getUserPriceAlerts: (userId, callback) => {
 		priceAlert.find({ userId: userId.toString() }).toArray(
 			(e, res) => {
 				if (e) callback(e)
 				else callback(null, res)
 		});
 	},
-	deleteAlert: (alertId, userId, callback) => {
+	getUserIndicatorAlerts: (userId, callback) => {
+		indicatorAlert.find({ userId: userId.toString() }).toArray(
+			(e, res) => {
+				if (e) callback(e)
+				else callback(null, res)
+		});
+	},
+	deleteIndicatorAlert: (alertId, userId, callback) => {
+		indicatorAlert.deleteOne({_id: new mongo.ObjectId(alertId), userId: userId.toString()}, callback);
+	},
+	
+	deletePriceAlert: (alertId, userId, callback) => {
 		priceAlert.deleteOne({_id: new mongo.ObjectId(alertId), userId: userId.toString()}, callback);
 	},
 	getUserByTelegramChatId: (telegramChatId, callback) => {

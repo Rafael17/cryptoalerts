@@ -3,15 +3,24 @@ const Candles 		= require('./candles');
 const Indicators 	= require('./indicators');
 const Telegraf 		= require('telegraf');
 const getSecret 	= require('./../scripts/getSecret');
-const Binance = require('binance-api-node').default
-const client = Binance()
+const Binance 		= require('binance-api-node').default;
+const client 		= Binance();
 
 getSecret('prod/telegram', ['TELEGRAM_API_KEY','BOT_NAME']);
 const PriceAlertMng = require('./priceAlertManager');
 
+// Currently only support these pairs for binance
+const symbols = ['ETHUSDT', 'BTCUSDT'];
+const timeframes = [ 1, 5, 15, 60, 240];
+const candles = {};
 
-const allCandles = { 1: [], 5: [], 15: [], 60: [], 240: []};
-const availableTimeframes = [ 1, 5, 15, 60, 240];
+symbols.forEach( symbol => {
+	candles[symbol] = {};
+	timeframes.forEach(timeframe => {
+		candles[symbol][timeframe] = [];
+	});
+})
+
 const timeframeMap = {
 	'1': '1 min',
 	'5': '5 min',
@@ -19,37 +28,47 @@ const timeframeMap = {
 	'60': '1 hour',
 	'240': '4 hour',
 }
-let minuteCandles = [];
+//let minuteCandles = [];
 let lastTime = 0;
 
-setInterval(() => {
-	client.candles({ symbol: 'ETHUSDT', interval: '1m', limit: '2' }).then( candles => {
-		if(lastTime == candles[1].openTime) {
+const start = () => {
+	symbols.map( symbol => {
+		setInterval(() => {
+			querySymbolCandles(symbol)
+		}, 30 * 1000)
+	})
+}
+
+start();
+
+const querySymbolCandles = (symbol) => {
+	client.candles({ symbol: symbol, interval: '1m', limit: '2' }).then( resultCandles => {
+
+		if(candles[symbol].lastTime == resultCandles[1].openTime) {
 			return;
 		}
-		lastTime = candles[1].openTime;
-		const candle = candles[0];
+		candles[symbol].lastTime = resultCandles[1].openTime;
+		const candle = resultCandles[0];
 		candle.time = time(candle.openTime);
 
-		minuteCandles.push(candle);
-		
-
-		availableTimeframes.map( (timeframe) => {
-			const candle = Candles.createNMinuteCandles(minuteCandles, timeframe);	
+		candles[symbol]['1'].push(candle);
+		timeframes.map( (timeframe) => {
+			const candle = Candles.createNMinuteCandles(candles[symbol]['1'], timeframe);	
 			
 			if(candle) {
-				console.log(candle)
-				allCandles[timeframe].push(candle);
-				Indicators.isEngulfing(allCandles[timeframe], (result) =>  result && alertUsers(result, timeframe) );
-				Indicators.isStar(allCandles[timeframe], (result) =>  result && alertUsers(result, timeframe) );
+				console.log(candle);
+				if(timeframe!='1') {
+					candles[symbol][timeframe].push(candle);
+				}
+				Indicators.isEngulfing(candles[symbol][timeframe], (result) =>  result && alertUsers(result, timeframe, symbol) );
+				Indicators.isStar(candles[symbol][timeframe], (result) =>  result && alertUsers(result, timeframe, symbol) );
 			}
 		})
 	})
-}, 30 * 1000);
+}
 
-const alertUsers = (indicatorData, timeframe) => {
-	const exchange = "Bitmex";
-	const pair = "XBTUSD";
+const alertUsers = (indicatorData, timeframe, pair) => {
+	const exchange = "Binance";
 	console.log(timeframe);
 	console.log(indicatorData);
 	PriceAlertMng.getIndicatorAlerts(exchange, pair, timeframe, indicatorData.indicator, (e, userIds) => {

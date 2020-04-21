@@ -48,15 +48,20 @@ const querySymbolCandles = (symbol) => {
 			return;
 		}
 		candles[symbol].lastTime = resultCandles[1].openTime;
-		const candle = resultCandles[0];
+		
+		// Convert all strings to Number
+		const candle = {};
+		for(let key in resultCandles[0]) {
+			candle[key] = resultCandles[0][key] * 1; 
+		}
+		
 		candle.time = time(candle.openTime);
-
 		candles[symbol]['1'].push(candle);
+
 		timeframes.map( (timeframe) => {
 			const candle = Candles.createNMinuteCandles(candles[symbol]['1'], timeframe);	
 			
 			if(candle) {
-				console.log(candle);
 				if(timeframe!='1') {
 					candles[symbol][timeframe].push(candle);
 				}

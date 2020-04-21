@@ -12,7 +12,7 @@ const isRecentHigh = (candles, totalLen, patternLen) => {
 const Indicators = {
 
 	isEngulfing: (candles, callback) => {
-		const totalLen = 5;
+		const totalLen = 10;
 		const indicator = "Engulfing";
 
 		if(candles.length < totalLen) {
@@ -20,7 +20,7 @@ const Indicators = {
 		}
 		const last = candles[candles.length - 1];
 		const prevLast = candles[candles.length - 2];
-		
+
 		//Trigger: if is engulfing and current candle is min/max low/high of the last 5 candles
 		if(prevLast.open <= last.close && ( prevLast.low >= last.low ) && ( last.open <= last.close && prevLast.open >= prevLast.close ) && isRecentLow(candles, totalLen, 2)) {
 			return callback({indicator, message: "Bullish Engulfing"});
@@ -32,7 +32,7 @@ const Indicators = {
 	},
 
 	isStar: (candles, callback) => {
-		const totalLen = 8;
+		const totalLen = 10;
 		const indicator = "Star";
 		
 		if(candles.length < totalLen) {

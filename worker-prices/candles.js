@@ -6,6 +6,7 @@ const Candles = {
 		const candlesCount = minuteCandles.length;
 		const currentMin = minuteCandles[candlesCount - 1].time.toString().slice(-2) * 1;
 		const currentHour = minuteCandles[candlesCount - 1].time.toString().slice(-4, -2) * 1;
+		
 		let isCandleComplete = (currentMin % timeframe === timeframe - 1);
 		// 4 hours
 		if(timeframe > 60) {

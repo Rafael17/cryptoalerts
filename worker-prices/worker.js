@@ -14,7 +14,7 @@ mongoUtil.connect( ( err, client ) => {
 	if (err) console.log(err);
 	PriceAlertMng	= require('./priceAlertManager');
 	require('./queryPrices');
-	require('./queryCandles');
+	require('./queryCandlesBinance');
 	getAllAlerts();
 });
 

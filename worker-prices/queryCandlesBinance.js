@@ -32,13 +32,17 @@ const timeframeMap = {
 let lastTime = 0;
 
 const start = () => {
-	symbols.map( symbol => {
-		setInterval(() => {
-			querySymbolCandles(symbol)
-		}, 30 * 1000)
-	})
+	const date = new Date();
+	const seconds = date.getSeconds();
+	const waitSeconds = 60 - seconds * 1;
+	setTimeout(() => {
+		symbols.map( symbol => {
+			setInterval(() => {
+				querySymbolCandles(symbol)
+			}, 60 * 1000)
+		})
+	}, (waitSeconds + 5) * 1000)
 }
-
 start();
 
 const querySymbolCandles = (symbol) => {

@@ -1,11 +1,12 @@
 {
-  "name": "cryptoalerts",
+  "name": "cryptoalerts-backend",
   "version": "1.0.0",
   "description": "Use bitmex API and Telegram to alert when price targets and indicators are triggered",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node app.js"
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js"
   },
   "author": "",
   "license": "ISC",
